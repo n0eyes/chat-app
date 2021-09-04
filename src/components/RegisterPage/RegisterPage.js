@@ -34,7 +34,6 @@ function RegisterPage() {
           displayName: data.Name,
           photoURL: `http://gravatar.com/avatar/${v4()}?d=identicon`,
         });
-        console.log("이게 먼저 되야 하는데,");
 
         await firebase.database().ref("user").child(createdUser.user.uid).set({
           name: createdUser.user.displayName,
