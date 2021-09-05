@@ -5,13 +5,13 @@ import MessagesForm from "./MessagesForm";
 export class MainPanel extends Component {
   render() {
     return (
-      <div style={{ padding: "25px" }}>
+      <div style={{ padding: "25px", height: "100vh" }}>
         <MessagesHeader />
         <div
           style={{
             border: "2px solid #ececec",
             width: "100%",
-            height: "40vh",
+            height: "60vh",
             padding: "1rem",
             marginBottom: "1rem",
           }}
