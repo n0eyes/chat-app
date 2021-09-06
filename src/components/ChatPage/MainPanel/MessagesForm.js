@@ -5,7 +5,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import firebase from "firebase";
 import { useSelector } from "react-redux";
-//커밋 오류로 인한 재커밋 3try
+
 function MessagesForm() {
   const [content, setContent] = useState("");
   const [errors, setErrors] = useState([]);
@@ -17,8 +17,8 @@ function MessagesForm() {
   );
 
   const createMessage = (fileURL = null) => {
-    console.log(firebase.database());
     const message = {
+      //firebase 공식문서 참고
       timestamp: firebase.database.ServerValue.TIMESTAMP,
       user: {
         id: currentUser.uid,

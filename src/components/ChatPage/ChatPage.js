@@ -1,16 +1,18 @@
 import React from "react";
 import SidePanel from "./SidePanel/SidePanel";
 import MainPanel from "./MainPanel/MainPanel";
-import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 function ChatPage() {
-  const dispatch = useDispatch();
+  const currentChatRoom = useSelector(
+    (state) => state.chatRoom.currentChatRoom
+  );
   return (
     <div style={{ display: "flex", flexBasis: "300px" }}>
       <div style={{ width: "15vw" }}>
         <SidePanel></SidePanel>
       </div>
       <div style={{ width: "85vw" }}>
-        <MainPanel></MainPanel>
+        <MainPanel key={currentChatRoom?.id}></MainPanel>
       </div>
     </div>
   );
