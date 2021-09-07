@@ -4,7 +4,7 @@ import moment from "moment";
 import { useSelector } from "react-redux";
 function Messages({ message, user }) {
   const timeFromNow = (timestamp) => moment(timestamp).fromNow();
-  const isMyMessage = (message, user) => message.user.id === user.uid;
+  const isMyMessage = (message, user) => message.user.id === user?.uid;
   const currentUser = useSelector((state) => state.user.currentUser);
   return (
     <>

@@ -5,14 +5,18 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Image from "react-bootstrap/Image";
 import firebase from "firebase";
 import { setLogOut, setPhotoURL } from "../../../redux/actions/user_action";
+import { useHistory } from "react-router";
 import mime from "mime-types";
 function UserPanel() {
   const currentUser = useSelector((state) => state.user.currentUser);
   const imageUploadRef = useRef();
   const dispatch = useDispatch();
+  const history = useHistory();
   const onLogOut = useCallback(() => {
     firebase.auth().signOut();
+    localStorage.removeItem("userInfo");
     dispatch(setLogOut());
+    history.push("/login");
   }, []);
   const onUploadImage = useCallback(() => {
     imageUploadRef.current.click();

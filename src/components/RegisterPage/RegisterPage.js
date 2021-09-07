@@ -1,9 +1,8 @@
 import React, { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { setUser } from "../../redux/actions/user_action";
 import firebase from "../../firebase";
+import { useHistory } from "react-router";
 import { v4 } from "uuid";
 function RegisterPage() {
   const {
@@ -18,8 +17,7 @@ function RegisterPage() {
   password.current = watch("Password");
   const [errorFromSubmit, setErrorFromSubmit] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch();
-
+  const history = useHistory();
   const onSubmit = async (data) => {
     try {
       if (!isLoading) {
@@ -39,6 +37,7 @@ function RegisterPage() {
           name: createdUser.user.displayName,
           image: createdUser.user.photoURL,
         });
+        history.push("/login");
       }
     } catch (err) {
       setErrorFromSubmit(err.message);

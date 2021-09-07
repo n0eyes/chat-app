@@ -1,18 +1,19 @@
 import React, { useCallback, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import firebase from "../../firebase";
-import { v4 } from "uuid";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../redux/actions/user_action";
 function LoginPage() {
   const {
     register,
-    watch,
     handleSubmit,
     formState: { errors },
   } = useForm({
     mode: "onChange",
   });
-
+  const history = useHistory();
+  const dispatch = useDispatch();
   const [errorFromSubmit, setErrorFromSubmit] = useState();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,10 +21,18 @@ function LoginPage() {
     try {
       if (!isLoading) {
         setIsLoading(true);
-        await firebase
+        const loginUser = await firebase
           .auth()
-          .signInWithEmailAndPassword(data.Email, data.Password);
+          .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+          .then(async () => {
+            return await firebase
+              .auth()
+              .signInWithEmailAndPassword(data.Email, data.Password);
+          });
         setIsLoading(false);
+        localStorage.setItem("userInfo", JSON.stringify(loginUser.user));
+        dispatch(setUser(loginUser.user));
+        history.push("/");
       }
     } catch (err) {
       setErrorFromSubmit(err.message);
