@@ -59,7 +59,6 @@ function MessagesForm() {
       console.log(err.message);
     }
   };
-
   const createMessage = (fileURL = null) => {
     const message = {
       //firebase 공식문서 참고

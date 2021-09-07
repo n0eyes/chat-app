@@ -9,6 +9,9 @@ export class MainPanel extends Component {
     messages: [],
     messagesRef: firebase.database().ref("messages"),
     messagesLoading: true,
+    searchTerm: "",
+    searchResults: [],
+    searchLoading: false,
   };
 
   componentDidMount() {
@@ -16,6 +19,29 @@ export class MainPanel extends Component {
     const { currentChatRoom } = this.props;
     if (currentChatRoom) this.addMessageListener(currentChatRoom.id);
   }
+  handleSearchMessages = () => {
+    const chatRoomMessages = [...this.state.messages];
+    const regex = new RegExp(this.state.searchTerm, "gi");
+    const searchResults = chatRoomMessages.reduce((acc, message) => {
+      if (
+        message.chatContent &&
+        (message.chatContent.match(regex) || message.user.name.match(regex))
+      ) {
+        acc.push(message);
+      }
+      return acc;
+    }, []);
+    this.setState({ searchResults });
+  };
+  handleSearchChange = (e) => {
+    this.setState(
+      {
+        searchTerm: e.currentTarget.value,
+        searchLoading: true,
+      },
+      () => this.handleSearchMessages()
+    );
+  };
 
   addMessageListener(chatRoomId) {
     let messagesArray = [];
@@ -26,19 +52,21 @@ export class MainPanel extends Component {
         this.setState({ messages: messagesArray, messagesLoading: false });
       });
   }
-  renderMessages = (messages) =>
-    messages.length > 0 &&
-    messages.map((message) => (
-      <Messages
-        key={message.timestamp}
-        message={message}
-        user={this.props.currentUser}
-      />
-    ));
+  renderMessages = (messages) => {
+    if (messages.length > 0)
+      return messages.map((message) => (
+        <Messages
+          key={message.timestamp}
+          message={message}
+          user={this.props.currentUser}
+        />
+      ));
+  };
+
   render() {
     return (
       <div style={{ padding: "25px", height: "100vh" }}>
-        <MessagesHeader />
+        <MessagesHeader handleSearchChange={this.handleSearchChange} />
         <div
           style={{
             border: "2px solid #ececec",
@@ -48,7 +76,12 @@ export class MainPanel extends Component {
             marginBottom: "1rem",
           }}
         >
-          {this.renderMessages(this.state.messages)}
+          {/* 조건으로 serachResultf를 사용하면 searchTerm이 빈 문자열일 때
+              빈 문자들로 이루어진 배열을 반환해서 불가능(정규표현식 구글링)
+          */}
+          {this.state.searchTerm
+            ? this.renderMessages(this.state.searchResults)
+            : this.renderMessages(this.state.messages)}
         </div>
         <MessagesForm />
       </div>
