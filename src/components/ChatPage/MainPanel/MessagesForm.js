@@ -1,21 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Form from "react-bootstrap/Form";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import firebase from "firebase";
 import { useSelector } from "react-redux";
-
+import mime from "mime-types";
 function MessagesForm() {
   const [content, setContent] = useState("");
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
   const messagesRef = firebase.database().ref("messages");
   const currentUser = useSelector((state) => state.user.currentUser);
+  const inputOpenImageRef = useRef();
   const currentChatRoom = useSelector(
     (state) => state.chatRoom.currentChatRoom
   );
+  const handleUploadImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const filePath = `${file.name}`;
+    const metadata = { contentType: mime.lookup(file.name) };
 
+    try {
+      await firebase
+        .storage()
+        .ref("/message/public/")
+        .child(filePath)
+        .put(file, metadata);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
   const createMessage = (fileURL = null) => {
     const message = {
       //firebase 공식문서 참고
@@ -80,11 +96,21 @@ function MessagesForm() {
           </button>
         </Col>
         <Col>
-          <button className="message-form-button" style={{ width: "100%" }}>
+          <button
+            className="message-form-button"
+            style={{ width: "100%" }}
+            onClick={() => inputOpenImageRef.current.click()}
+          >
             UPLOAD
           </button>
         </Col>
       </Row>
+      <input
+        type="file"
+        ref={inputOpenImageRef}
+        style={{ display: "none" }}
+        onChange={handleUploadImage}
+      />
     </div>
   );
 }
