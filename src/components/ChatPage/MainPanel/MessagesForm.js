@@ -22,22 +22,39 @@ function MessagesForm() {
     if (!file) return;
     const filePath = `${file.name}`;
     const metadata = { contentType: mime.lookup(file.name) };
-
     try {
+      setLoading(true);
       const uploadTask = firebase
         .storage()
         .ref("/message/public/")
         .child(filePath)
         .put(file, metadata);
 
-      uploadTask.on("state_changed", (UploadTaskSnapshot) => {
-        const percentage = Math.round(
-          (UploadTaskSnapshot.bytesTransferred /
-            UploadTaskSnapshot.totalBytes) *
-            100
-        );
-        setPercentage(percentage);
-      });
+      uploadTask.on(
+        "state_changed",
+        (UploadTaskSnapshot) => {
+          const percentage = Math.round(
+            (UploadTaskSnapshot.bytesTransferred /
+              UploadTaskSnapshot.totalBytes) *
+              100
+          );
+          setPercentage(percentage);
+        },
+        (err) => {
+          console.log(err);
+          setLoading(false);
+        },
+        () => {
+          //task 완료 후 실행 // 저장 된 파일 db에 저장하기
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            messagesRef
+              .child(currentChatRoom.id)
+              .push()
+              .set(createMessage(downloadURL));
+          });
+          setLoading(false);
+        }
+      );
     } catch (err) {
       console.log(err.message);
     }
@@ -53,7 +70,7 @@ function MessagesForm() {
         name: currentUser.displayName,
         image: currentUser.photoURL,
       },
-      ...(fileURL ? { images: fileURL } : { chatContent: content }),
+      ...(fileURL ? { image: fileURL } : { chatContent: content }),
     };
     return message;
   };
@@ -104,6 +121,7 @@ function MessagesForm() {
       <Row>
         <Col>
           <button
+            disabled={loading}
             onClick={handleSubmit}
             className="message-form-button"
             style={{ width: "100%" }}
@@ -113,6 +131,7 @@ function MessagesForm() {
         </Col>
         <Col>
           <button
+            disabled={loading}
             className="message-form-button"
             style={{ width: "100%" }}
             onClick={() => inputOpenImageRef.current.click()}
@@ -123,6 +142,7 @@ function MessagesForm() {
       </Row>
       <input
         type="file"
+        accept="image/jpeg, image/png"
         ref={inputOpenImageRef}
         style={{ display: "none" }}
         onChange={handleUploadImage}

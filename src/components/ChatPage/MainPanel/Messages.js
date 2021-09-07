@@ -31,7 +31,14 @@ function Messages({ message, user }) {
         </Toast.Header>
         <Toast.Body>
           {/* 이미지를 보냈을 때 */}
-          {message.image && <img src={message.image} alt={message.user.name} />}
+          {message.image && (
+            <img
+              width="70"
+              height="70"
+              src={message.image}
+              alt={message.user.name}
+            />
+          )}
           {message.chatContent && message.chatContent}
         </Toast.Body>
       </Toast>
