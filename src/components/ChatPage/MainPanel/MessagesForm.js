@@ -10,28 +10,39 @@ function MessagesForm() {
   const [content, setContent] = useState("");
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [percentage, setPercentage] = useState(0);
   const messagesRef = firebase.database().ref("messages");
   const currentUser = useSelector((state) => state.user.currentUser);
   const inputOpenImageRef = useRef();
   const currentChatRoom = useSelector(
     (state) => state.chatRoom.currentChatRoom
   );
-  const handleUploadImage = async (e) => {
+  const handleUploadImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const filePath = `${file.name}`;
     const metadata = { contentType: mime.lookup(file.name) };
 
     try {
-      await firebase
+      const uploadTask = firebase
         .storage()
         .ref("/message/public/")
         .child(filePath)
         .put(file, metadata);
+
+      uploadTask.on("state_changed", (UploadTaskSnapshot) => {
+        const percentage = Math.round(
+          (UploadTaskSnapshot.bytesTransferred /
+            UploadTaskSnapshot.totalBytes) *
+            100
+        );
+        setPercentage(percentage);
+      });
     } catch (err) {
       console.log(err.message);
     }
   };
+
   const createMessage = (fileURL = null) => {
     const message = {
       //firebase 공식문서 참고
@@ -78,8 +89,13 @@ function MessagesForm() {
           ></Form.Control>
         </Form.Group>
       </Form>
-
-      <ProgressBar now={60} variant="warning" style={{ margin: "20px 0" }} />
+      {percentage != 0 && percentage != 100 && (
+        <ProgressBar
+          now={percentage}
+          variant="warning"
+          style={{ margin: "20px 0" }}
+        />
+      )}
       <div>
         {errors.map((errorMsg) => (
           <p>{errorMsg}</p>
