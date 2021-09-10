@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import { FaRegSmile } from "react-icons/fa";
 import firebase from "firebase";
 import { connect } from "react-redux";
-import { setCurrentChatRoom } from "../../../redux/actions/chatRoom_action";
+import {
+  setCurrentChatRoom,
+  setIsPrivate,
+} from "../../../redux/actions/chatRoom_action";
 export class DirectMessages extends Component {
   state = {
     usersRef: firebase.database().ref("user"),
@@ -41,20 +44,31 @@ export class DirectMessages extends Component {
       name: user.name,
     };
     this.props.dispatch(setCurrentChatRoom(chatRoomdData));
+    this.props.dispatch(setIsPrivate(true));
   };
-  renderDirectMessages = () =>
-    this.state.users.length > 0 &&
-    this.state.users.map((user) => (
-      <li
-        key={user.uid}
-        style={{
-          paddingLeft: 5,
-          cursor: "pointer",
-          borderRadius: "5px",
-        }}
-        onClick={() => this.changeChatRoom(user)}
-      >{`# ${user.name}`}</li>
-    ));
+  renderDirectMessages = () => {
+    return (
+      this.state.users.length > 0 &&
+      this.state.users.map((user) => {
+        return (
+          <li
+            key={this.getChatRoomdId(user.uid)}
+            style={{
+              paddingLeft: 5,
+              cursor: "pointer",
+              borderRadius: "5px",
+              backgroundColor:
+                this.props.isPrivate &&
+                this.getChatRoomdId(user.uid) ===
+                  this.props.currentChatRoom.id &&
+                "#ffffff45",
+            }}
+            onClick={() => this.changeChatRoom(user)}
+          >{`# ${user.name}`}</li>
+        );
+      })
+    );
+  };
 
   render() {
     return (
@@ -67,7 +81,7 @@ export class DirectMessages extends Component {
           }}
         >
           <FaRegSmile />
-          {`DIRECT MESSAGES (1)`}
+          {`DIRECT MESSAGES (${this.state.users.length})`}
           <div />
         </div>
         <ul style={{ listStyleType: "none", padding: 0 }}>
@@ -80,10 +94,8 @@ export class DirectMessages extends Component {
 const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,
+    isPrivate: state.chatRoom.isPrivate,
+    currentChatRoom: state.chatRoom.currentChatRoom,
   };
 };
 export default connect(mapStateToProps)(DirectMessages);
-
-//처음에는 await 없이 비동기로 진행
-// 그담으에 await 넣고 동기식으로 진행해도 결과가 같음
-// 결국 비동기함수 내부로 넣으니 가능하다

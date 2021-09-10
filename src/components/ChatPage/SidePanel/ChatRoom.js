@@ -7,7 +7,10 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { connect } from "react-redux";
 import firebase from "firebase";
-import { setCurrentChatRoom } from "../../../redux/actions/chatRoom_action";
+import {
+  setCurrentChatRoom,
+  setIsPrivate,
+} from "../../../redux/actions/chatRoom_action";
 export class ChatRoom extends Component {
   state = {
     show: false,
@@ -55,6 +58,7 @@ export class ChatRoom extends Component {
   isFormValid = (name, description) => name && description;
   changeChatRoom = (room) => {
     this.props.dispatch(setCurrentChatRoom(room));
+    this.props.dispatch(setIsPrivate(false));
     this.setState({ activeChatRoomId: room.id });
   };
   renderChatRooms = (chatRooms) => {
@@ -66,7 +70,9 @@ export class ChatRoom extends Component {
             cursor: "pointer",
             borderRadius: "5px",
             backgroundColor:
-              this.state.activeChatRoomId === room.id && "#ffffff45",
+              this.state.activeChatRoomId === room.id &&
+              !this.props.isPrivate &&
+              "#ffffff45",
           }}
           key={room.id}
           onClick={() => this.changeChatRoom(room)}
@@ -169,6 +175,7 @@ export class ChatRoom extends Component {
 const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,
+    isPrivate: state.chatRoom.isPrivate,
   };
 };
 export default connect(mapStateToProps)(ChatRoom);

@@ -1,7 +1,11 @@
-import { SET_CURRENT_CHAT_ROOM } from "../actions/chatRoom_action";
+import {
+  SET_CURRENT_CHAT_ROOM,
+  SET_IS_PRIVATE,
+} from "../actions/chatRoom_action";
 
 const initialState = {
   currentChatRoom: null,
+  isPrivate: false,
 };
 export default function user(state = initialState, action) {
   switch (action.type) {
@@ -10,7 +14,11 @@ export default function user(state = initialState, action) {
         ...state,
         currentChatRoom: action.payload,
       };
-
+    case SET_IS_PRIVATE:
+      return {
+        ...state,
+        isPrivate: action.payload,
+      };
     default:
       return state;
   }

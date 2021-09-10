@@ -17,6 +17,12 @@ function MessagesForm() {
   const currentChatRoom = useSelector(
     (state) => state.chatRoom.currentChatRoom
   );
+  const isPrivate = useSelector((state) => state.chatRoom.isPrivate);
+
+  const getFilePath = () =>
+    isPrivate
+      ? `/message/private/${currentChatRoom.id}`
+      : `/message/public/${currentChatRoom.id}`;
   const handleUploadImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -26,7 +32,7 @@ function MessagesForm() {
       setLoading(true);
       const uploadTask = firebase
         .storage()
-        .ref("/message/public/")
+        .ref(getFilePath())
         .child(filePath)
         .put(file, metadata);
 
