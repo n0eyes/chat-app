@@ -6,11 +6,14 @@ export class DirectMessages extends Component {
   state = {
     usersRef: firebase.database().ref("user"),
     users: [],
-    currentUser: this.props.currentUser,
+    isLoaded: false,
   };
 
-  componentDidMount() {
-    this.props.currentUser && this.addUsersListenrs(this.state.currentUser);
+  componentDidUpdate() {
+    if (!this.state.isLoaded) {
+      this.props.currentUser && this.addUsersListenrs(this.props.currentUser);
+      this.setState({ isLoaded: true });
+    }
   }
   addUsersListenrs = (currentUser) => {
     const { usersRef } = this.state;
@@ -21,25 +24,24 @@ export class DirectMessages extends Component {
       userInfo.uid = DataSnapshot.key;
       userInfo.status = "offline";
       currentUser.displayName !== userInfo.name && usersArray.push(userInfo);
+      this.setState({ users: usersArray });
     });
-    this.setState({ users: usersArray });
   };
 
-  renderDirectMessages = () => {
-    if (this.state.users.length > 0)
-      return this.state.users.map((user) => {
-        return (
-          <li
-            style={{ paddingLeft: 5, cursor: "pointer", borderRadius: "5px" }}
-            key={user.uid}
-          >{`# ${user.name}`}</li>
-        );
-      });
-  };
+  renderDirectMessages = () =>
+    this.state.users.length > 0 &&
+    this.state.users.map((user) => (
+      <li
+        key={user.uid}
+        style={{
+          paddingLeft: 5,
+          cursor: "pointer",
+          borderRadius: "5px",
+        }}
+      >{`# ${user.name}`}</li>
+    ));
 
   render() {
-    console.log("render-users", this.state.users);
-    console.log("current-users", this.state.currentUser);
     return (
       <div>
         <div
@@ -66,3 +68,7 @@ const mapStateToProps = (state) => {
   };
 };
 export default connect(mapStateToProps)(DirectMessages);
+
+//처음에는 await 없이 비동기로 진행
+// 그담으에 await 넣고 동기식으로 진행해도 결과가 같음
+// 결국 비동기함수 내부로 넣으니 가능하다
