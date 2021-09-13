@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { IoIosChatboxes } from "react-icons/io";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -7,11 +7,17 @@ import firebase from "firebase";
 import { setLogOut, setPhotoURL } from "../../../redux/actions/user_action";
 import { useHistory } from "react-router";
 import mime from "mime-types";
+import { setImageRefInMessges } from "../../../redux/actions/chatRoom_action";
 function UserPanel() {
   const currentUser = useSelector((state) => state.user.currentUser);
+  const currentChatRoom = useSelector(
+    (state) => state.chatRoom.currentChatRoom
+  );
+  const messagesRef = firebase.database().ref("messages");
   const imageUploadRef = useRef();
   const dispatch = useDispatch();
   const history = useHistory();
+
   const onLogOut = useCallback(() => {
     firebase.auth().signOut();
     localStorage.removeItem("userInfo");
@@ -21,6 +27,7 @@ function UserPanel() {
   const onUploadImage = useCallback(() => {
     imageUploadRef.current.click();
   }, [imageUploadRef]);
+
   const onUploadImgToDb = useCallback(
     async (e) => {
       //파일 찾아서
@@ -41,16 +48,40 @@ function UserPanel() {
           photoURL: downloadURL,
         });
 
-        //프로필 이미지 수정
+        const needChangeData = [];
+        messagesRef.child(currentChatRoom.id).on("value", (DataSnapshot) => {
+          DataSnapshot.forEach((data) => {
+            console.log(data.val());
+            data.val().user.id === currentUser.uid &&
+              needChangeData.push({
+                id: data.val().user.id,
+                key: data.key,
+                downloadURL,
+              });
+          });
+        });
+        needChangeData.forEach(async (data) => {
+          await messagesRef
+            .child(`${currentChatRoom.id}/${data.key}/user`)
+            .update({
+              image: data.downloadURL,
+            });
+        });
+        //state.user.currentUesr 프로필 이미지 수정
         dispatch(setPhotoURL(downloadURL));
+
+        //state.chatRoom.messages 모든 이미지 링크 수정
+        dispatch(setImageRefInMessges(currentUser.uid, downloadURL));
 
         //데이터 베이스의 이미지 정보 수정
         await firebase.database().ref("user").child(currentUser.uid).update({
           image: downloadURL,
         });
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     },
-    [currentUser]
+    [currentUser, currentChatRoom, messagesRef]
   );
   return (
     <div>

@@ -30,7 +30,6 @@ function LoginPage() {
               .signInWithEmailAndPassword(data.Email, data.Password);
           });
         setIsLoading(false);
-        localStorage.setItem("userInfo", JSON.stringify(loginUser.user));
         dispatch(setUser(loginUser.user));
         history.push("/");
       }

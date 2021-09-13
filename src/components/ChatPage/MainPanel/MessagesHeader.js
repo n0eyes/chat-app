@@ -36,7 +36,7 @@ function MessagesHeader({ handleSearchChange }) {
               ) : (
                 <FaLockOpen style={{ marginRight: "10px" }} />
               )}
-              {`${currentChatRoom?.name}`}{" "}
+              {currentChatRoom?.name}{" "}
             </h3>
           </Col>
           <Col>

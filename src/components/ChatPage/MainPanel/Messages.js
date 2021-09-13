@@ -4,8 +4,13 @@ import moment from "moment";
 import { useSelector } from "react-redux";
 function Messages({ message, user }) {
   const timeFromNow = (timestamp) => moment(timestamp).fromNow();
-  const isMyMessage = (message, user) => message.user.id === user?.uid;
-  const currentUser = useSelector((state) => state.user.currentUser);
+  const isMyMessage = (message, user) => {
+    // if (message.user.id === user?.uid) {
+    //   console.log("if", user.photoURL);
+    // } else console.log("else", message.user.image);
+
+    return message.user?.id === user?.uid;
+  };
   return (
     <>
       <Toast
@@ -19,9 +24,7 @@ function Messages({ message, user }) {
             width="48"
             height="48"
             src={
-              isMyMessage(message, user)
-                ? currentUser.photoURL
-                : message.user.image
+              isMyMessage(message, user) ? user.photoURL : message.user.image
             }
             alt={message.user.name}
             className="rounded me-2"
@@ -35,7 +38,7 @@ function Messages({ message, user }) {
             <img
               width="70"
               height="70"
-              src={message.image}
+              src={message.user.image}
               alt={message.user.name}
             />
           )}

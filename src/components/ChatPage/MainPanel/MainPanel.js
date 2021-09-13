@@ -3,10 +3,10 @@ import Messages from "./Messages";
 import MessagesHeader from "./MessagesHeader";
 import MessagesForm from "./MessagesForm";
 import { connect } from "react-redux";
+import { setLoadMessges } from "../../../redux/actions/chatRoom_action";
 import firebase from "firebase";
 export class MainPanel extends Component {
   state = {
-    messages: [],
     messagesRef: firebase.database().ref("messages"),
     messagesLoading: true,
     searchTerm: "",
@@ -49,11 +49,12 @@ export class MainPanel extends Component {
       .child(chatRoomId)
       .on("child_added", (DataSnapshot) => {
         messagesArray.push(DataSnapshot.val());
-        this.setState({ messages: messagesArray, messagesLoading: false });
+        this.props.dispatch(setLoadMessges(messagesArray));
+        this.setState({ messagesLoading: false });
       });
   }
   renderMessages = (messages) => {
-    if (messages.length > 0)
+    if (messages?.length > 0)
       return messages.map((message) => (
         <Messages
           key={message.timestamp}
@@ -81,7 +82,7 @@ export class MainPanel extends Component {
           */}
           {this.state.searchTerm
             ? this.renderMessages(this.state.searchResults)
-            : this.renderMessages(this.state.messages)}
+            : this.renderMessages(this.props.messages)}
         </div>
         <MessagesForm />
       </div>
@@ -92,6 +93,7 @@ const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,
     currentChatRoom: state.chatRoom.currentChatRoom,
+    messages: state.chatRoom.messages,
   };
 };
 export default connect(mapStateToProps)(MainPanel);

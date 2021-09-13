@@ -35,6 +35,7 @@ export class ChatRoom extends Component {
     let chatRoomsArray = [];
 
     //해당 이벤트는 항목의 child마다 한번씩 발동한다.(다중 발생)
+    //여기 DataSnapshot은 각 방들의 ref
     this.state.chatRoomsRef.on("child_added", (DataSnapshot) => {
       chatRoomsArray.push(DataSnapshot.val());
       //DataSnapshot의 value에 각 채팅방 정보가 담겨있다
@@ -44,11 +45,15 @@ export class ChatRoom extends Component {
           this.props.dispatch(setCurrentChatRoom(this.state.chatRooms[0])) &&
           this.setState({ activeChatRoomId: this.state.chatRooms[0].id });
       });
-      this.addNotificationListener(DataSnapshot.key);
+      // this.addNotificationListener(DataSnapshot.key);
+      //DataSnapshot.key === ref의 아이디
     });
   };
   addNotificationListener = (chatRoomId) => {
+    //value를 사용하면 전체 데이터 목록이 단을 스냅샷으로 찍힌다(루프 돌려서 사용)
+    //여기 DataSnapshot은 각 방들의 메세지정보 모음
     this.state.messagesRef.child(chatRoomId).on("value", (DataSnapshot) => {
+      console.log("chatroom/datasnapshot", DataSnapshot);
       if (this.props.currentChatRoom) {
         this.handleNotification(
           chatRoomId,
@@ -134,7 +139,7 @@ export class ChatRoom extends Component {
         >
           # {room.name}
           <Badge style={{ backgroundColor: "#e03131", height: "20px" }}>
-            {this.getNotificationsCount(room)}
+            {/* {this.getNotificationsCount(room)} */}
           </Badge>
         </li>
       ));

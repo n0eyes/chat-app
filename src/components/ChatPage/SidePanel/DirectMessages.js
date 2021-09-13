@@ -13,7 +13,7 @@ export class DirectMessages extends Component {
     isLoaded: false,
   };
 
-  componentDidUpdate() {
+  componentDidMount() {
     if (!this.state.isLoaded) {
       this.props.currentUser && this.addUsersListenrs(this.props.currentUser);
       this.setState({ isLoaded: true });

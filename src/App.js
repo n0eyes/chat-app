@@ -5,19 +5,21 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import RegisterPage from "./components/RegisterPage/RegisterPage";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "./redux/actions/user_action";
+import firebase from "firebase";
 function App() {
   const history = useHistory();
   const dispatch = useDispatch();
   const isLoading = useSelector((state) => state.user.isLoading);
   useEffect(() => {
-    const currentUser = localStorage.getItem("userInfo")
-      ? JSON.parse(localStorage.getItem("userInfo"))
-      : null;
-    if (currentUser) {
-      history.push("/");
-      dispatch(setUser(currentUser));
-    } else history.push("/login");
-  });
+    firebase.auth().onAuthStateChanged((currentUser) => {
+      if (currentUser) {
+        history.push("/");
+        dispatch(setUser(currentUser));
+      } else {
+        history.push("login");
+      }
+    });
+  }, []);
   if (isLoading) {
     return <div>로딩중...</div>;
   } else {
