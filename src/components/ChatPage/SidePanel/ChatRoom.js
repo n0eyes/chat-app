@@ -115,7 +115,7 @@ export class ChatRoom extends Component {
   isFormValid = (name, description) => name && description;
   changeChatRoom = (room) => {
     this.props.dispatch(setCurrentChatRoom(room));
-    this.props.dispatch(setIsPrivate(false));
+    this.props.isPrivate && this.props.dispatch(setIsPrivate(false));
     this.setState({ activeChatRoomId: room.id });
   };
   renderChatRooms = (chatRooms) => {
@@ -160,6 +160,9 @@ export class ChatRoom extends Component {
     };
     try {
       await this.state.chatRoomsRef.child(key).update(newChatRoom);
+      // await this.state.messagesRef.child(key).s?
+      this.props.dispatch(setCurrentChatRoom(newChatRoom));
+      this.setState({ activeChatRoomId: key });
       //key값으로 빈 데이터 child를 찾아서 update한다 (push로 바로 넣으면 key값 넣기가 애매하다)
       this.setState({
         name: "",

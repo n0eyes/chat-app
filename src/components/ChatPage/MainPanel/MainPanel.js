@@ -3,7 +3,10 @@ import Messages from "./Messages";
 import MessagesHeader from "./MessagesHeader";
 import MessagesForm from "./MessagesForm";
 import { connect } from "react-redux";
-import { setLoadMessges } from "../../../redux/actions/chatRoom_action";
+import {
+  setImageRefInMessges,
+  setLoadMessges,
+} from "../../../redux/actions/chatRoom_action";
 import firebase from "firebase";
 export class MainPanel extends Component {
   state = {
@@ -17,7 +20,13 @@ export class MainPanel extends Component {
   componentDidMount() {
     //채팅방 아이디 겟
     const { currentChatRoom } = this.props;
-    if (currentChatRoom) this.addMessageListener(currentChatRoom.id);
+    if (currentChatRoom) {
+      this.addMessageListener(currentChatRoom.id);
+      this.addMessageUpdateListener(currentChatRoom.id);
+    }
+  }
+  componentWillUnmount() {
+    this.state.messagesRef.off();
   }
   handleSearchMessages = () => {
     const chatRoomMessages = [...this.state.messages];
@@ -42,15 +51,39 @@ export class MainPanel extends Component {
       () => this.handleSearchMessages()
     );
   };
-
-  addMessageListener(chatRoomId) {
-    let messagesArray = [];
+  //실시간 프로필 이미지 변경 적용
+  addMessageUpdateListener(chatRoomId) {
     this.state.messagesRef
       .child(chatRoomId)
-      .on("child_added", (DataSnapshot) => {
-        messagesArray.push(DataSnapshot.val());
-        this.props.dispatch(setLoadMessges(messagesArray));
+      .on("child_changed", (DataSnapshot) => {
+        const currentUserId = DataSnapshot.val().user.id;
+        const downloadURL = DataSnapshot.val().user.image;
+        this.props.dispatch(
+          setImageRefInMessges({ currentUserId, downloadURL })
+        );
         this.setState({ messagesLoading: false });
+        return;
+      });
+  }
+
+  addMessageListener(chatRoomId) {
+    //메세지가 없으면 메세지 테이블이 생성되지 않는다
+    this.state.messagesRef
+      .child(chatRoomId)
+      .get()
+      .then((DataSnapshot) => {
+        let messagesArray = [];
+        //따라서 이벤트 리스너는 무조건 등록해주지만(데이터가 없으면 콜백이 한번도 실행되지 않음)
+        this.state.messagesRef
+          .child(chatRoomId)
+          .on("child_added", (DataSnapshot) => {
+            messagesArray.push(DataSnapshot.val());
+            this.props.dispatch(setLoadMessges(messagesArray));
+            this.setState({ messagesLoading: false });
+          });
+        //데이터가 없으면 빈 배열을 바로 dispatch해서 채팅방 초기화를 해준다
+        if (!DataSnapshot.exists())
+          this.props.dispatch(setLoadMessges(messagesArray));
       });
   }
   renderMessages = (messages) => {
@@ -62,6 +95,7 @@ export class MainPanel extends Component {
           user={this.props.currentUser}
         />
       ));
+    else return;
   };
 
   render() {

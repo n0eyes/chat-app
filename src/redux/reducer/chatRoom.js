@@ -23,9 +23,17 @@ export default function user(state = initialState, action) {
         isPrivate: action.payload,
       };
     case SET_IMAGE_REF_IN_MESSAGES:
-      console.log("state", state.messages);
+      const newMessages = state.messages.map((message) => {
+        if (message.user.id === action.payload.currentUserId)
+          return {
+            ...message,
+            user: { ...message.user, image: action.payload.downloadURL },
+          };
+        else return message;
+      });
       return {
         ...state,
+        messages: newMessages,
       };
     case SET_LOAD_MESSAGES:
       return {

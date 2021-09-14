@@ -51,7 +51,6 @@ function UserPanel() {
         const needChangeData = [];
         messagesRef.child(currentChatRoom.id).on("value", (DataSnapshot) => {
           DataSnapshot.forEach((data) => {
-            console.log(data.val());
             data.val().user.id === currentUser.uid &&
               needChangeData.push({
                 id: data.val().user.id,
@@ -60,6 +59,7 @@ function UserPanel() {
               });
           });
         });
+        //db imageRef 전부 수정
         needChangeData.forEach(async (data) => {
           await messagesRef
             .child(`${currentChatRoom.id}/${data.key}/user`)
@@ -71,7 +71,9 @@ function UserPanel() {
         dispatch(setPhotoURL(downloadURL));
 
         //state.chatRoom.messages 모든 이미지 링크 수정
-        dispatch(setImageRefInMessges(currentUser.uid, downloadURL));
+        dispatch(
+          setImageRefInMessges({ currentUserId: currentUser.uid, downloadURL })
+        );
 
         //데이터 베이스의 이미지 정보 수정
         await firebase.database().ref("user").child(currentUser.uid).update({
