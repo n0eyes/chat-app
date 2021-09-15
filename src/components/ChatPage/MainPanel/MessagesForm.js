@@ -82,6 +82,8 @@ function MessagesForm() {
   const handleSubmit = async (e) => {
     if (!content) {
       setErrors((prev) => [...prev, "Type contents first"]);
+      setTimeout(() => setErrors([]), 2000);
+
       return;
     }
     if (loading) return;

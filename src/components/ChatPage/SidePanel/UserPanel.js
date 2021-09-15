@@ -74,7 +74,6 @@ function UserPanel() {
         dispatch(
           setImageRefInMessges({ currentUserId: currentUser.uid, downloadURL })
         );
-
         //데이터 베이스의 이미지 정보 수정
         await firebase.database().ref("user").child(currentUser.uid).update({
           image: downloadURL,

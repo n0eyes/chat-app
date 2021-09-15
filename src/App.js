@@ -11,6 +11,8 @@ function App() {
   const dispatch = useDispatch();
   const isLoading = useSelector((state) => state.user.isLoading);
   useEffect(() => {
+    document.querySelector("title").innerHTML = "Fire Chat";
+
     firebase.auth().onAuthStateChanged((currentUser) => {
       if (currentUser) {
         history.push("/");

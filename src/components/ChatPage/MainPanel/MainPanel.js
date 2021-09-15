@@ -22,7 +22,7 @@ export class MainPanel extends Component {
     const { currentChatRoom } = this.props;
     if (currentChatRoom) {
       this.addMessageListener(currentChatRoom.id);
-      this.addMessageUpdateListener(currentChatRoom.id);
+      // this.addMessageUpdateListener(currentChatRoom.id);
     }
   }
   componentWillUnmount() {
@@ -52,27 +52,27 @@ export class MainPanel extends Component {
     );
   };
   //실시간 프로필 이미지 변경 적용
-  addMessageUpdateListener(chatRoomId) {
-    this.state.messagesRef
-      .child(chatRoomId)
-      .on("child_changed", (DataSnapshot) => {
-        const currentUserId = DataSnapshot.val().user.id;
-        const downloadURL = DataSnapshot.val().user.image;
-        this.props.dispatch(
-          setImageRefInMessges({ currentUserId, downloadURL })
-        );
-        this.setState({ messagesLoading: false });
-        return;
-      });
-  }
+  // addMessageUpdateListener(chatRoomId) {
+  //   this.state.messagesRef
+  //     .child(chatRoomId)
+  //     .on("child_changed", (DataSnapshot) => {
+  //       const currentUserId = DataSnapshot.val().user.id;
+  //       const downloadURL = DataSnapshot.val().user.image;
+  //       this.props.dispatch(
+  //         setImageRefInMessges({ currentUserId, downloadURL })
+  //       );
+  //       this.setState({ messagesLoading: false });
+  //       return;
+  //     });
+  // }
 
-  addMessageListener(chatRoomId) {
+  async addMessageListener(chatRoomId) {
     //메세지가 없으면 메세지 테이블이 생성되지 않는다
-    this.state.messagesRef
+    let messagesArray = [];
+    await this.state.messagesRef
       .child(chatRoomId)
       .get()
       .then((DataSnapshot) => {
-        let messagesArray = [];
         //따라서 이벤트 리스너는 무조건 등록해주지만(데이터가 없으면 콜백이 한번도 실행되지 않음)
         this.state.messagesRef
           .child(chatRoomId)
@@ -81,11 +81,12 @@ export class MainPanel extends Component {
             this.props.dispatch(setLoadMessges(messagesArray));
             this.setState({ messagesLoading: false });
           });
-        //데이터가 없으면 빈 배열을 바로 dispatch해서 채팅방 초기화를 해준다
-        if (!DataSnapshot.exists())
+        !DataSnapshot.exists() &&
           this.props.dispatch(setLoadMessges(messagesArray));
+        return messagesArray;
       });
   }
+
   renderMessages = (messages) => {
     if (messages?.length > 0)
       return messages.map((message) => (
