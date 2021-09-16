@@ -29,6 +29,9 @@ export class ChatRoom extends Component {
   }
   componentWillUnmount() {
     this.state.chatRoomsRef.off();
+    this.state.charRooms.forEach((chatRoom) => {
+      this.state.messagesRef.child(chatRoom.id).off();
+    });
   }
 
   AddChatRoosListener = () => {
@@ -45,15 +48,15 @@ export class ChatRoom extends Component {
           this.props.dispatch(setCurrentChatRoom(this.state.chatRooms[0])) &&
           this.setState({ activeChatRoomId: this.state.chatRooms[0].id });
       });
-      // this.addNotificationListener(DataSnapshot.key);
+      this.addNotificationListener(DataSnapshot.key);
       //DataSnapshot.key === ref의 아이디
     });
   };
+
   addNotificationListener = (chatRoomId) => {
     //value를 사용하면 전체 데이터 목록이 단을 스냅샷으로 찍힌다(루프 돌려서 사용)
     //여기 DataSnapshot은 각 방들의 메세지정보 모음
     this.state.messagesRef.child(chatRoomId).on("value", (DataSnapshot) => {
-      console.log("chatroom/datasnapshot", DataSnapshot);
       if (this.props.currentChatRoom) {
         this.handleNotification(
           chatRoomId,
@@ -117,6 +120,19 @@ export class ChatRoom extends Component {
     this.props.dispatch(setCurrentChatRoom(room));
     this.props.isPrivate && this.props.dispatch(setIsPrivate(false));
     this.setState({ activeChatRoomId: room.id });
+    this.clearNotifications();
+  };
+  clearNotifications = () => {
+    let index = this.state.notifications.findIndex(
+      (notification) => notification.id === this.props.chatRoom.id
+    );
+    if (index !== -1) {
+      let updatedNotifications = [...this.state.notifications];
+      updatedNotifications[index].lastKnowTotal =
+        this.state.notifications[index].total;
+      updatedNotifications[index].count = 0;
+      this.setState({ notifications: updatedNotifications });
+    }
   };
   renderChatRooms = (chatRooms) => {
     if (chatRooms.length)
@@ -139,7 +155,7 @@ export class ChatRoom extends Component {
         >
           # {room.name}
           <Badge style={{ backgroundColor: "#e03131", height: "20px" }}>
-            {/* {this.getNotificationsCount(room)} */}
+            {this.getNotificationsCount(room)}
           </Badge>
         </li>
       ));
