@@ -68,36 +68,14 @@ export class MainPanel extends Component {
   // }
 
   addMessageListener(chatRoomId) {
-    //메세지가 없으면 메세지 테이블이 생성되지 않는다
-    // let messagesArray = [];
-    // await this.state.messagesRef
-    //   .child(chatRoomId)
-    //   .get()
-    //   .then((DataSnapshot) => {
-    //     //따라서 이벤트 리스너는 무조건 등록해주지만(데이터가 없으면 콜백이 한번도 실행되지 않음)
-    //     this.state.messagesRef
-    //       .child(chatRoomId)
-    //       .on("child_added", (DataSnapshot) => {
-    //         console.log(DataSnapshot.ref);
-    //         messagesArray.push(DataSnapshot.val());
-    //       });
-    //     this.props.dispatch(setLoadMessges(messagesArray));
-    //     this.setState({ messagesLoading: false });
-    //     // !DataSnapshot.exists() &&
-    //     //   this.props.dispatch(setLoadMessges(messagesArray));
-    //   });
     let messagesArray = [];
     this.state.messagesRef
       .child(chatRoomId)
       .on("child_added", (DataSnapshot) => {
         messagesArray.push(DataSnapshot.val());
+        // console.log("added", messagesArray);
         // this.props.dispatch(setLoadMessges(messagesArray));
-        this.setState(
-          { messages: messagesArray, messagesLoading: false },
-          () => {
-            console.log("state", this.state.messages, messagesArray);
-          }
-        );
+        this.setState({ messages: messagesArray, messagesLoading: false });
       });
   }
 
@@ -121,7 +99,7 @@ export class MainPanel extends Component {
           style={{
             border: "2px solid #ececec",
             width: "100%",
-            height: "60vh",
+            height: "65vh",
             padding: "1rem",
             marginBottom: "1rem",
             overflowY: "auto",
@@ -143,7 +121,7 @@ const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,
     currentChatRoom: state.chatRoom.currentChatRoom,
-    // messages: state.chatRoom.messages,
+    messages: state.chatRoom.messages,
   };
 };
 export default connect(mapStateToProps)(MainPanel);

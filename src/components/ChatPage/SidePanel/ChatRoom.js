@@ -29,7 +29,7 @@ export class ChatRoom extends Component {
   }
   componentWillUnmount() {
     this.state.chatRoomsRef.off();
-    this.state.charRooms.forEach((chatRoom) => {
+    this.state.chatRooms.forEach((chatRoom) => {
       this.state.messagesRef.child(chatRoom.id).off();
     });
   }
@@ -116,15 +116,20 @@ export class ChatRoom extends Component {
     }
   };
   isFormValid = (name, description) => name && description;
+
   changeChatRoom = (room) => {
     this.props.dispatch(setCurrentChatRoom(room));
     this.props.isPrivate && this.props.dispatch(setIsPrivate(false));
-    this.setState({ activeChatRoomId: room.id });
-    this.clearNotifications();
+    this.setState(
+      { activeChatRoomId: room.id },
+      () => this.clearNotifications()
+      //만약 setState의 리턴함수 밖에서 사용한다면 currentChatRoom이 dispatch가
+      //완료되지 않는다. 따라서 activeChatRoomId로 변경한 chatRoom의 id를 구한다
+    );
   };
   clearNotifications = () => {
     let index = this.state.notifications.findIndex(
-      (notification) => notification.id === this.props.chatRoom.id
+      (notification) => notification.id === this.state.activeChatRoomId
     );
     if (index !== -1) {
       let updatedNotifications = [...this.state.notifications];
@@ -176,7 +181,6 @@ export class ChatRoom extends Component {
     };
     try {
       await this.state.chatRoomsRef.child(key).update(newChatRoom);
-      // await this.state.messagesRef.child(key).s?
       this.props.dispatch(setCurrentChatRoom(newChatRoom));
       this.setState({ activeChatRoomId: key });
       //key값으로 빈 데이터 child를 찾아서 update한다 (push로 바로 넣으면 key값 넣기가 애매하다)

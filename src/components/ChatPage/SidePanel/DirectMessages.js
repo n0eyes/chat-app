@@ -15,8 +15,12 @@ export class DirectMessages extends Component {
 
   componentDidMount() {
     if (!this.state.isLoaded) {
-      this.props.currentUser && this.addUsersListenrs(this.props.currentUser);
-      this.setState({ isLoaded: true });
+      //처음에 props를 받아오는데 시간이 걸려서 null로 인식하는 것을 대처하기 위함
+      //추후 더 좋은 방식으로 개선
+      setTimeout(() => {
+        this.props.currentUser && this.addUsersListenrs(this.props.currentUser);
+        this.setState({ isLoaded: true });
+      }, 500);
     }
   }
   addUsersListenrs = (currentUser) => {

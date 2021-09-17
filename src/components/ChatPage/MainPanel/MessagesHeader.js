@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -10,12 +10,62 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import { AiOutlineSearch } from "react-icons/ai";
+import { ImNeutral } from "react-icons/im";
+import { ImSmile2 } from "react-icons/im";
 import { useSelector } from "react-redux";
+import firebase from "firebase";
 function MessagesHeader({ handleSearchChange }) {
+  const userRef = firebase.database().ref("user");
+  const currentUser = useSelector((state) => state.user.currentUser);
   const currentChatRoom = useSelector(
     (state) => state.chatRoom.currentChatRoom
   );
   const isPrivate = useSelector((state) => state.chatRoom.isPrivate);
+  const [isFavorited, setIsFavorited] = useState(false);
+
+  useEffect(() => {
+    currentUser &&
+      currentChatRoom &&
+      addFavoriteListener(currentChatRoom?.id, currentUser?.uid);
+  }, [currentUser]);
+  const addFavoriteListener = (chatRoomId, userId) => {
+    userRef
+      .child(userId)
+      .child("favorited")
+      .once("value")
+      .then((data) => {
+        if (data.val()) {
+          const chatRoomIds = Object.keys(data.val());
+          const isAlreadyFavorited = chatRoomIds.includes(chatRoomId);
+          setIsFavorited(isAlreadyFavorited);
+        }
+      });
+  };
+
+  const handleFavorite = () => {
+    if (isFavorited) {
+      userRef
+        .child(`${currentUser.uid}/favorited`)
+        .child(currentChatRoom.id)
+        .remove((err) => {
+          !err && console.error(err);
+        });
+      setIsFavorited((prev) => !prev);
+    } else {
+      userRef
+        .child(`${currentUser.uid}/favorited/${currentChatRoom.id}`)
+        .update({
+          name: currentChatRoom.name,
+          description: currentChatRoom.description,
+          createdBy: {
+            name: currentChatRoom.createdBy.name,
+            image: currentChatRoom.createdBy.image,
+          },
+        });
+      setIsFavorited((prev) => !prev);
+    }
+  };
+
   return (
     <div
       style={{
@@ -30,13 +80,31 @@ function MessagesHeader({ handleSearchChange }) {
       <Container>
         <Row>
           <Col>
-            <h3 style={{ display: "flex", alignItems: "center" }}>
+            <h3
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
               {isPrivate ? (
                 <FaLock style={{ marginRight: "10px" }} />
               ) : (
                 <FaLockOpen style={{ marginRight: "10px" }} />
               )}
               {currentChatRoom?.name}{" "}
+              {!isPrivate && (
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                  onClick={handleFavorite}
+                >
+                  {isFavorited ? <ImSmile2 /> : <ImNeutral />}
+                </span>
+              )}
             </h3>
           </Col>
           <Col>

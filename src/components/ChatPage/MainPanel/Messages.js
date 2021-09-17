@@ -5,10 +5,6 @@ import { useSelector } from "react-redux";
 function Messages({ message, user }) {
   const timeFromNow = (timestamp) => moment(timestamp).fromNow();
   const isMyMessage = (message, user) => {
-    // if (message.user.id === user?.uid) {
-    //   console.log("if", user.photoURL);
-    // } else console.log("else", message.user.image);
-
     return message.user?.id === user?.uid;
   };
   return (

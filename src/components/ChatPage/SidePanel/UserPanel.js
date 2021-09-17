@@ -59,6 +59,7 @@ function UserPanel() {
               });
           });
         });
+        messagesRef.child(currentChatRoom.id).off();
         //db imageRef 전부 수정
         needChangeData.forEach(async (data) => {
           await messagesRef
