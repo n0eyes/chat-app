@@ -74,21 +74,30 @@ export class Favorited extends Component {
         key={room.id}
         onClick={() => this.changeChatRoom(room)}
         style={{
+          paddingLeft: 5,
+          cursor: "pointer",
+          borderRadius: "5px",
           backgroundColor:
             this.state.activeChatRoomId === room.id &&
             !this.props.isPrivate &&
             "#ffffff45",
         }}
       >
-        #{room.name}
+        # {room.name}
       </li>
     ));
   render() {
     return (
       <div>
-        <span>
-          <FaRegSmileBeam /> FAVORITED (1)
-        </span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <FaRegSmileBeam style={{ marginRight: "11px", marginTop: "2px" }} />
+          {`FAVORITED (${this.state.favoritedChatRooms.length})`}
+        </div>
         <ul style={{ listStyleType: "none", padding: 0 }}>
           {this.renderFavoritedChatRooms(this.state.favoritedChatRooms)}
         </ul>

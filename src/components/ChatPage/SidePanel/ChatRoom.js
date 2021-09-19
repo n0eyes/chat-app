@@ -201,13 +201,15 @@ export class ChatRoom extends Component {
             position: "relative",
             width: "100%",
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <FaRegSmileWink />
+          <FaRegSmileWink style={{ marginRight: "11px", marginTop: "2px" }} />
           {`CHAT ROOMS (${this.state.chatRooms.length})`}
-          <FaPlus style={{ cursor: "pointer" }} onClick={this.handleShow} />
+          <FaPlus
+            style={{ cursor: "pointer", marginLeft: "6px", marginTop: "2px" }}
+            onClick={this.handleShow}
+          />
         </div>
         <ul style={{ listStyleType: "none", padding: 0 }}>
           {this.renderChatRooms(this.state.chatRooms)}

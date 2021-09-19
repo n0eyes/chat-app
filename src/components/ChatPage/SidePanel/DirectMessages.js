@@ -81,12 +81,10 @@ export class DirectMessages extends Component {
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
           }}
         >
-          <FaRegSmile />
+          <FaRegSmile style={{ marginRight: "11px", marginTop: "2px" }} />
           {`DIRECT MESSAGES (${this.state.users.length})`}
-          <div />
         </div>
         <ul style={{ listStyleType: "none", padding: 0 }}>
           {this.renderDirectMessages()}

@@ -3,10 +3,7 @@ import Messages from "./Messages";
 import MessagesHeader from "./MessagesHeader";
 import MessagesForm from "./MessagesForm";
 import { connect } from "react-redux";
-import {
-  setImageRefInMessges,
-  setLoadMessges,
-} from "../../../redux/actions/chatRoom_action";
+import { setUserPosts } from "../../../redux/actions/chatRoom_action";
 import firebase from "firebase";
 export class MainPanel extends Component {
   state = {
@@ -67,8 +64,9 @@ export class MainPanel extends Component {
   //     });
   // }
 
-  addMessageListener(chatRoomId) {
+  addMessageListener = async (chatRoomId) => {
     let messagesArray = [];
+
     this.state.messagesRef
       .child(chatRoomId)
       .on("child_added", (DataSnapshot) => {
@@ -77,8 +75,22 @@ export class MainPanel extends Component {
         // this.props.dispatch(setLoadMessges(messagesArray));
         this.setState({ messages: messagesArray, messagesLoading: false });
       });
-  }
-
+    setTimeout(() => this.userPostsCount(messagesArray), 200);
+  };
+  userPostsCount = (messages) => {
+    let userPosts = messages.reduce((acc, message) => {
+      if (message.username in acc) {
+        acc[message.user.name].count += 1;
+      } else {
+        acc[message.user.name] = {
+          image: message.user.image,
+          count: 1,
+        };
+      }
+      return acc;
+    }, {});
+    this.props.dispatch(setUserPosts(userPosts));
+  };
   renderMessages = (messages) => {
     if (messages?.length > 0)
       return messages.map((message) => (
