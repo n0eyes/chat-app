@@ -21,6 +21,7 @@ function MessagesHeader({ handleSearchChange }) {
     (state) => state.chatRoom.currentChatRoom
   );
   const isPrivate = useSelector((state) => state.chatRoom.isPrivate);
+  const userPosts = useSelector((state) => state.chatRoom.userPosts);
   const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
@@ -65,6 +66,33 @@ function MessagesHeader({ handleSearchChange }) {
       setIsFavorited((prev) => !prev);
     }
   };
+
+  const renderUserPosts = (userPosts) =>
+    Object.entries(userPosts)
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([key, value], i) => (
+        <div
+          style={{
+            display: " flex",
+            alignItems: "center",
+            marginBlock: "8px",
+          }}
+          key={i}
+        >
+          <img
+            style={{ borderRadius: "25px" }}
+            width={48}
+            height={48}
+            className="mr-3"
+            src={value.image}
+            alt={value.name}
+          />
+          <div style={{ fontWeight: "bold", marginLeft: "7px" }}>
+            {key}
+            <h6>{value.count} 개</h6>
+          </div>
+        </div>
+      ));
 
   return (
     <div
@@ -179,7 +207,9 @@ function MessagesHeader({ handleSearchChange }) {
                   </Accordion.Toggle>
                 </Card.Header>
                 <Accordion.Collapse eventKey="0">
-                  <Card.Body>Hello! I'm the body</Card.Body>
+                  <Card.Body>
+                    {userPosts && renderUserPosts(userPosts)}
+                  </Card.Body>
                 </Accordion.Collapse>
               </Card>
             </Accordion>

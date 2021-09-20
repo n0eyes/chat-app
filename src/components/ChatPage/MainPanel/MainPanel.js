@@ -74,12 +74,12 @@ export class MainPanel extends Component {
         // console.log("added", messagesArray);
         // this.props.dispatch(setLoadMessges(messagesArray));
         this.setState({ messages: messagesArray, messagesLoading: false });
+        this.userPostsCount(messagesArray);
       });
-    setTimeout(() => this.userPostsCount(messagesArray), 200);
   };
   userPostsCount = (messages) => {
     let userPosts = messages.reduce((acc, message) => {
-      if (message.username in acc) {
+      if (message.user.name in acc) {
         acc[message.user.name].count += 1;
       } else {
         acc[message.user.name] = {
