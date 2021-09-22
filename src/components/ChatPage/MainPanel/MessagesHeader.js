@@ -156,14 +156,16 @@ function MessagesHeader({ handleSearchChange }) {
             justifyContent: "flex-end",
           }}
         >
-          <p>
-            <Image
-              src={currentChatRoom && currentChatRoom.createdBy.image}
-              roundedCircle
-              style={{ width: "30px", height: "30px" }}
-            />
-            {currentChatRoom && ` ${currentChatRoom.createdBy.name}`}
-          </p>
+          {!isPrivate && (
+            <p>
+              <Image
+                src={currentChatRoom && currentChatRoom.createdBy.image}
+                roundedCircle
+                style={{ width: "30px", height: "30px" }}
+              />
+              {currentChatRoom && ` ${currentChatRoom.createdBy.name}`}
+            </p>
+          )}
         </div>
         <Row>
           <Col>

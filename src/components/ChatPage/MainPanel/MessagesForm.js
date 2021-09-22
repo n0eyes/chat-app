@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Form from "react-bootstrap/Form";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import Row from "react-bootstrap/Row";
@@ -12,6 +12,7 @@ function MessagesForm() {
   const [loading, setLoading] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const messagesRef = firebase.database().ref("messages");
+  const typingRef = firebase.database().ref("typing");
   const currentUser = useSelector((state) => state.user.currentUser);
   const inputOpenImageRef = useRef();
   const currentChatRoom = useSelector(
@@ -90,6 +91,7 @@ function MessagesForm() {
     try {
       setLoading(true);
       await messagesRef.child(currentChatRoom.id).push().set(createMessage());
+
       setLoading(false);
       setContent("");
       setErrors([]);
@@ -100,14 +102,24 @@ function MessagesForm() {
   const handleChange = (e) => {
     setContent(e.currentTarget.value);
   };
-
+  const handleKeyDown = useCallback(() => {
+    if (content) {
+      typingRef
+        .child(currentChatRoom.id)
+        .child(currentUser.uid)
+        .set(currentUser.displayName);
+    } else {
+      typingRef.child(currentChatRoom.id).child(currentUser.uid).remove();
+    }
+  }, [content, typingRef, currentUser, currentChatRoom]);
   return (
     <div>
       <Form onSubmit={handleSubmit}>
         <Form.Group>
           <Form.Control
-            value={content}
             onChange={handleChange}
+            value={content}
+            onKeyDown={handleKeyDown}
             as="textarea"
             row={3}
           ></Form.Control>

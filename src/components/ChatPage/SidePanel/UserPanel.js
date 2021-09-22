@@ -52,26 +52,43 @@ function UserPanel() {
           photoURL: downloadURL,
         });
 
-        const needChangeData = [];
+        const needChangeInMessageRef = [];
         messagesRef.child(currentChatRoom.id).on("value", (DataSnapshot) => {
           DataSnapshot.forEach((data) => {
             data.val().user.id === currentUser.uid &&
-              needChangeData.push({
+              needChangeInMessageRef.push({
                 id: data.val().user.id,
                 key: data.key,
                 downloadURL,
               });
           });
         });
+        const needChangeInChatRoomsRef = [];
+        chatRoomsRef.on("value", (DataSnapshot) => {
+          DataSnapshot.forEach((data) => {
+            data.val().createdBy.name === currentUser.displayName &&
+              needChangeInChatRoomsRef.push({
+                chatRoomId: data.val().id,
+                downloadURL,
+              });
+          });
+        });
         messagesRef.child(currentChatRoom.id).off();
+        // chatRoomsRef.off();
         //db imageRef 전부 수정
-        needChangeData.forEach(async (data) => {
+        needChangeInMessageRef.forEach(async (data) => {
           await messagesRef
             .child(`${currentChatRoom.id}/${data.key}/user`)
             .update({
               image: data.downloadURL,
             });
-          await chatRoomsRef.child(`${currentChatRoom.id}/createdBy`).update({
+          // await chatRoomsRef.child(`${currentChatRoom.id}/createdBy`).update({
+          //   image: data.downloadURL,
+          // });
+        });
+        needChangeInChatRoomsRef.forEach(async (data) => {
+          console.log(data);
+          await chatRoomsRef.child(`${data.chatRoomId}/createdBy`).update({
             image: data.downloadURL,
           });
         });
@@ -92,7 +109,7 @@ function UserPanel() {
         console.log(err);
       }
     },
-    [currentUser, currentChatRoom, messagesRef]
+    [currentUser, currentChatRoom, messagesRef, chatRoomsRef]
   );
   return (
     <div>
