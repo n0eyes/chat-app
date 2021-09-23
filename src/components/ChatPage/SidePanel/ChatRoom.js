@@ -36,7 +36,7 @@ export class ChatRoom extends Component {
 
   AddChatRoosListener = () => {
     let chatRoomsArray = [];
-
+    let chatRoomdChangedData = [];
     //해당 이벤트는 항목의 child마다 한번씩 발동한다.(다중 발생)
     //여기 DataSnapshot은 각 방들의 ref
     this.state.chatRoomsRef.on("child_added", (DataSnapshot) => {
@@ -50,6 +50,11 @@ export class ChatRoom extends Component {
       });
       this.addNotificationListener(DataSnapshot.key);
       //DataSnapshot.key === ref의 아이디
+    });
+    //db 변경을 감지해서 state도 바꿔줘야 채팅방 변경시 프로필 이미지가 초기화되지 않는다.
+    this.state.chatRoomsRef.on("child_changed", (DataSnapshot) => {
+      chatRoomdChangedData.push(DataSnapshot.val());
+      this.setState({ chatRooms: chatRoomdChangedData });
     });
   };
 

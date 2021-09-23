@@ -10,9 +10,11 @@ export class MainPanel extends Component {
     messages: [],
     messagesRef: firebase.database().ref("messages"),
     messagesLoading: true,
+    typingRef: firebase.database().ref("typing"),
     searchTerm: "",
     searchResults: [],
     searchLoading: false,
+    typingUsers: [],
   };
 
   componentDidMount() {
@@ -20,12 +22,39 @@ export class MainPanel extends Component {
     const { currentChatRoom } = this.props;
     if (currentChatRoom) {
       this.addMessageListener(currentChatRoom.id);
-      // this.addMessageUpdateListener(currentChatRoom.id);
+      this.addTypingListener(currentChatRoom.id);
     }
   }
   componentWillUnmount() {
     this.state.messagesRef.off();
   }
+
+  addTypingListener = (chatRoomId) => {
+    let typingUsers = [];
+    this.state.typingRef.child(chatRoomId).on("child_added", (DataSnapshot) => {
+      if (DataSnapshot.key !== this.props.currentUser.uid) {
+        typingUsers = typingUsers.concat({
+          id: DataSnapshot.key,
+          name: DataSnapshot.val(),
+        });
+        this.setState({ typingUsers });
+      }
+    });
+    this.state.typingRef
+      .child(chatRoomId)
+      .on("child_removed", (DataSnapshot) => {
+        const index = typingUsers.findIndex(
+          (user) => user.id === DataSnapshot.key
+        );
+        if (index !== -1) {
+          typingUsers = typingUsers.filter(
+            (user) => user.id !== DataSnapshot.key
+          );
+          this.setState({ typingUsers });
+        }
+      });
+  };
+
   handleSearchMessages = () => {
     const chatRoomMessages = [...this.state.messages];
     const regex = new RegExp(this.state.searchTerm, "gi");
@@ -102,6 +131,11 @@ export class MainPanel extends Component {
       ));
     else return;
   };
+  renderTypingUsers = (typingUsers) =>
+    typingUsers.length > 0 &&
+    typingUsers.map((user) => (
+      <span key={user.id}>{user.name}님이 채팅을 입력하고 있습니다..</span>
+    ));
 
   render() {
     return (
@@ -123,6 +157,7 @@ export class MainPanel extends Component {
           {this.state.searchTerm
             ? this.renderMessages(this.state.searchResults)
             : this.renderMessages(this.state.messages)}
+          {this.renderTypingUsers(this.state.typingUsers)}
         </div>
         <MessagesForm />
       </div>

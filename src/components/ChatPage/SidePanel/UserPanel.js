@@ -87,7 +87,6 @@ function UserPanel() {
           // });
         });
         needChangeInChatRoomsRef.forEach(async (data) => {
-          console.log(data);
           await chatRoomsRef.child(`${data.chatRoomId}/createdBy`).update({
             image: data.downloadURL,
           });
