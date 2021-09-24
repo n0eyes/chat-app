@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from "react";
+import React, { useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { IoIosChatboxes } from "react-icons/io";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -27,7 +27,7 @@ function UserPanel() {
     localStorage.removeItem("userInfo");
     dispatch(setLogOut());
     history.push("/login");
-  }, []);
+  }, [dispatch, history]);
   const onUploadImage = useCallback(() => {
     imageUploadRef.current.click();
   }, [imageUploadRef]);
@@ -108,7 +108,7 @@ function UserPanel() {
         console.log(err);
       }
     },
-    [currentUser, currentChatRoom, messagesRef, chatRoomsRef]
+    [currentUser, currentChatRoom, messagesRef, chatRoomsRef, dispatch]
   );
   return (
     <div>

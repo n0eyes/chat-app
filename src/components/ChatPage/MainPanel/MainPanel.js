@@ -15,8 +15,10 @@ export class MainPanel extends Component {
     searchResults: [],
     searchLoading: false,
     typingUsers: [],
+    listenerList: [],
   };
 
+  //  <! ---firebase db 보안 규칙 설정하기 --->
   componentDidMount() {
     //채팅방 아이디 겟
     const { currentChatRoom } = this.props;
@@ -27,8 +29,13 @@ export class MainPanel extends Component {
   }
   componentWillUnmount() {
     this.state.messagesRef.off();
+    this.removeListeners(this.state.listenerList);
   }
-
+  removeListeners = (listeners) => {
+    listeners.forEach((listener) => {
+      listener.ref.child(listener.id).off(listener.event);
+    });
+  };
   addTypingListener = (chatRoomId) => {
     let typingUsers = [];
     this.state.typingRef.child(chatRoomId).on("child_added", (DataSnapshot) => {
@@ -40,6 +47,9 @@ export class MainPanel extends Component {
         this.setState({ typingUsers });
       }
     });
+
+    this.addToListenerLists(chatRoomId, this.state.typingRef, "child_added");
+
     this.state.typingRef
       .child(chatRoomId)
       .on("child_removed", (DataSnapshot) => {
@@ -53,8 +63,23 @@ export class MainPanel extends Component {
           this.setState({ typingUsers });
         }
       });
+
+    this.addToListenerLists(chatRoomId, this.state.typingRef, "child_removed");
   };
 
+  addToListenerLists = (id, ref, event) => {
+    const index = this.state.listenerList.findIndex((listener) => {
+      return (
+        listener.id === id && listener.ref === ref && listener.event === event
+      );
+    });
+    if (index === -1) {
+      const newListener = { id, ref, event };
+      this.setState({
+        listenerList: this.state.listenerList.concat(newListener),
+      });
+    }
+  };
   handleSearchMessages = () => {
     const chatRoomMessages = [...this.state.messages];
     const regex = new RegExp(this.state.searchTerm, "gi");
@@ -95,7 +120,6 @@ export class MainPanel extends Component {
 
   addMessageListener = async (chatRoomId) => {
     let messagesArray = [];
-
     this.state.messagesRef
       .child(chatRoomId)
       .on("child_added", (DataSnapshot) => {

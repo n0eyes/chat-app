@@ -21,7 +21,7 @@ function App() {
         history.push("login");
       }
     });
-  }, []);
+  }, [history, dispatch]);
   if (isLoading) {
     return <div>로딩중...</div>;
   } else {

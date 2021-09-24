@@ -1,7 +1,6 @@
 import React from "react";
 import Toast from "react-bootstrap/Toast";
 import moment from "moment";
-import { useSelector } from "react-redux";
 function Messages({ message, user }) {
   const timeFromNow = (timestamp) => moment(timestamp).fromNow();
   const isMyMessage = (message, user) => {

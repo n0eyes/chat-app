@@ -25,23 +25,23 @@ function MessagesHeader({ handleSearchChange }) {
   const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
+    const addFavoriteListener = (chatRoomId, userId) => {
+      userRef
+        .child(userId)
+        .child("favorited")
+        .once("value")
+        .then((data) => {
+          if (data.val()) {
+            const chatRoomIds = Object.keys(data.val());
+            const isAlreadyFavorited = chatRoomIds.includes(chatRoomId);
+            setIsFavorited(isAlreadyFavorited);
+          }
+        });
+    };
     currentUser &&
       currentChatRoom &&
       addFavoriteListener(currentChatRoom?.id, currentUser?.uid);
-  }, [currentUser, currentChatRoom]);
-  const addFavoriteListener = (chatRoomId, userId) => {
-    userRef
-      .child(userId)
-      .child("favorited")
-      .once("value")
-      .then((data) => {
-        if (data.val()) {
-          const chatRoomIds = Object.keys(data.val());
-          const isAlreadyFavorited = chatRoomIds.includes(chatRoomId);
-          setIsFavorited(isAlreadyFavorited);
-        }
-      });
-  };
+  }, [currentUser, currentChatRoom, userRef]);
 
   const handleFavorite = () => {
     if (isFavorited) {

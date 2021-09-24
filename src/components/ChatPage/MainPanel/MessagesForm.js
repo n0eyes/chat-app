@@ -103,13 +103,14 @@ function MessagesForm() {
     setContent(e.currentTarget.value);
   };
   const handleKeyDown = useCallback(() => {
-    if (content) {
+    if (content && currentChatRoom) {
       typingRef
         .child(currentChatRoom.id)
         .child(currentUser.uid)
         .set(currentUser.displayName);
     } else {
-      typingRef.child(currentChatRoom.id).child(currentUser.uid).remove();
+      currentChatRoom &&
+        typingRef.child(currentChatRoom.id).child(currentUser.uid).remove();
     }
   }, [content, typingRef, currentUser, currentChatRoom]);
   return (
@@ -125,7 +126,7 @@ function MessagesForm() {
           ></Form.Control>
         </Form.Group>
       </Form>
-      {percentage != 0 && percentage != 100 && (
+      {percentage !== 0 && percentage !== 100 && (
         <ProgressBar
           now={percentage}
           variant="warning"
