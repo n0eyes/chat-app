@@ -10,9 +10,9 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import { AiOutlineSearch } from "react-icons/ai";
-import { ImNeutral } from "react-icons/im";
-import { ImSmile2 } from "react-icons/im";
+import { ImSmile2, ImCompass, ImNeutral } from "react-icons/im";
 import { useSelector } from "react-redux";
+import ImageExpansion from "../../../ImageExpansion";
 import firebase from "firebase";
 function MessagesHeader({ handleSearchChange }) {
   const userRef = firebase.database().ref("user");
@@ -23,7 +23,7 @@ function MessagesHeader({ handleSearchChange }) {
   const isPrivate = useSelector((state) => state.chatRoom.isPrivate);
   const userPosts = useSelector((state) => state.chatRoom.userPosts);
   const [isFavorited, setIsFavorited] = useState(false);
-
+  const [imageExpand, setImageExpand] = useState(false);
   useEffect(() => {
     const addFavoriteListener = (chatRoomId, userId) => {
       userRef
@@ -66,7 +66,6 @@ function MessagesHeader({ handleSearchChange }) {
       setIsFavorited((prev) => !prev);
     }
   };
-
   const renderUserPosts = (userPosts) =>
     Object.entries(userPosts)
       .sort((a, b) => b[1].count - a[1].count)
@@ -80,12 +79,13 @@ function MessagesHeader({ handleSearchChange }) {
           key={i}
         >
           <img
-            style={{ borderRadius: "25px" }}
+            style={{ borderRadius: "25px", cursor: "pointer" }}
             width={48}
             height={48}
             className="mr-3"
             src={value.image}
             alt={value.name}
+            onClick={() => setImageExpand(value.image)}
           />
           <div style={{ fontWeight: "bold", marginLeft: "7px" }}>
             {key}
@@ -121,7 +121,7 @@ function MessagesHeader({ handleSearchChange }) {
                 <FaLockOpen style={{ marginRight: "10px" }} />
               )}
               {currentChatRoom?.name}{" "}
-              {!isPrivate && (
+              {!isPrivate ? (
                 <span
                   style={{
                     display: "flex",
@@ -131,6 +131,15 @@ function MessagesHeader({ handleSearchChange }) {
                   onClick={handleFavorite}
                 >
                   {isFavorited ? <ImSmile2 /> : <ImNeutral />}
+                </span>
+              ) : (
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <ImCompass />
                 </span>
               )}
             </h3>
@@ -161,7 +170,12 @@ function MessagesHeader({ handleSearchChange }) {
               <Image
                 src={currentChatRoom && currentChatRoom.createdBy.image}
                 roundedCircle
-                style={{ width: "30px", height: "30px" }}
+                style={{ width: "30px", height: "30px", cursor: "pointer" }}
+                onClick={() =>
+                  setImageExpand(
+                    currentChatRoom && currentChatRoom.createdBy.image
+                  )
+                }
               />
               {currentChatRoom && ` ${currentChatRoom.createdBy.name}`}
             </p>
@@ -218,6 +232,9 @@ function MessagesHeader({ handleSearchChange }) {
           </Col>
         </Row>
       </Container>
+      {imageExpand && (
+        <ImageExpansion imageURL={imageExpand} close={setImageExpand} />
+      )}
     </div>
   );
 }

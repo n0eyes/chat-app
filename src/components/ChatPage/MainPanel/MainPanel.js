@@ -6,6 +6,8 @@ import { connect } from "react-redux";
 import { setUserPosts } from "../../../redux/actions/chatRoom_action";
 import firebase from "firebase";
 export class MainPanel extends Component {
+  messageEndRef = React.createRef();
+
   state = {
     messages: [],
     messagesRef: firebase.database().ref("messages"),
@@ -15,7 +17,7 @@ export class MainPanel extends Component {
     searchResults: [],
     searchLoading: false,
     typingUsers: [],
-    listenerList: [],
+    listenerLists: [],
   };
 
   //  <! ---firebase db 보안 규칙 설정하기 --->
@@ -27,9 +29,14 @@ export class MainPanel extends Component {
       this.addTypingListener(currentChatRoom.id);
     }
   }
+  componentDidUpdate() {
+    if (this.messageEndRef) {
+      this.messageEndRef.scrollIntoView({ behavior: "smooth" });
+    }
+  }
   componentWillUnmount() {
     this.state.messagesRef.off();
-    this.removeListeners(this.state.listenerList);
+    this.removeListeners(this.state.listenerLists);
   }
   removeListeners = (listeners) => {
     listeners.forEach((listener) => {
@@ -68,7 +75,7 @@ export class MainPanel extends Component {
   };
 
   addToListenerLists = (id, ref, event) => {
-    const index = this.state.listenerList.findIndex((listener) => {
+    const index = this.state.listenerLists.findIndex((listener) => {
       return (
         listener.id === id && listener.ref === ref && listener.event === event
       );
@@ -76,7 +83,7 @@ export class MainPanel extends Component {
     if (index === -1) {
       const newListener = { id, ref, event };
       this.setState({
-        listenerList: this.state.listenerList.concat(newListener),
+        listenerLists: this.state.listenerLists.concat(newListener),
       });
     }
   };
@@ -124,8 +131,6 @@ export class MainPanel extends Component {
       .child(chatRoomId)
       .on("child_added", (DataSnapshot) => {
         messagesArray.push(DataSnapshot.val());
-        // console.log("added", messagesArray);
-        // this.props.dispatch(setLoadMessges(messagesArray));
         this.setState({ messages: messagesArray, messagesLoading: false });
         this.userPostsCount(messagesArray);
       });
@@ -182,6 +187,7 @@ export class MainPanel extends Component {
             ? this.renderMessages(this.state.searchResults)
             : this.renderMessages(this.state.messages)}
           {this.renderTypingUsers(this.state.typingUsers)}
+          <div ref={(node) => (this.messageEndRef = node)} />
         </div>
         <MessagesForm />
       </div>

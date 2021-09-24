@@ -1,7 +1,6 @@
 import {
   SET_CURRENT_CHAT_ROOM,
   SET_IS_PRIVATE,
-  SET_IMAGE_REF_IN_MESSAGES,
   SET_IMAGE_REF_CURRENT_CHATROOM,
   SET_LOAD_MESSAGES,
   SET_USER_POSTS,
@@ -9,7 +8,6 @@ import {
 
 const initialState = {
   currentChatRoom: null,
-  messages: [],
   userPosts: {},
   isPrivate: false,
 };
@@ -25,19 +23,7 @@ export default function user(state = initialState, action) {
         ...state,
         isPrivate: action.payload,
       };
-    case SET_IMAGE_REF_IN_MESSAGES:
-      const newMessages = state.messages.map((message) => {
-        if (message.user.id === action.payload.currentUserId)
-          return {
-            ...message,
-            user: { ...message.user, image: action.payload.downloadURL },
-          };
-        else return message;
-      });
-      return {
-        ...state,
-        messages: newMessages,
-      };
+
     case SET_IMAGE_REF_CURRENT_CHATROOM:
       //immer는 나중에 넣자
       return {

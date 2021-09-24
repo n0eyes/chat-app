@@ -7,10 +7,7 @@ import firebase from "firebase";
 import { setLogOut, setPhotoURL } from "../../../redux/actions/user_action";
 import { useHistory } from "react-router";
 import mime from "mime-types";
-import {
-  setImageRefInMessges,
-  setImageRefInCurrentChatRoom,
-} from "../../../redux/actions/chatRoom_action";
+import { setImageRefInCurrentChatRoom } from "../../../redux/actions/chatRoom_action";
 function UserPanel() {
   const currentUser = useSelector((state) => state.user.currentUser);
   const currentChatRoom = useSelector(
@@ -47,11 +44,12 @@ function UserPanel() {
           .put(file, metadata);
         const downloadURL = await userImageSnapShot.ref.getDownloadURL();
 
-        //유저 정보의 포토 URL 수정
+        //auth 현재 유저 정보의 포토 URL 수정
         await firebase.auth().currentUser.updateProfile({
           photoURL: downloadURL,
         });
 
+        //db message 테이블의 URL 수정
         const needChangeInMessageRef = [];
         messagesRef.child(currentChatRoom.id).on("value", (DataSnapshot) => {
           DataSnapshot.forEach((data) => {
@@ -63,6 +61,16 @@ function UserPanel() {
               });
           });
         });
+        needChangeInMessageRef.forEach(async (data) => {
+          await messagesRef
+            .child(`${currentChatRoom.id}/${data.key}/user`)
+            .update({
+              image: data.downloadURL,
+            });
+        });
+        messagesRef.child(currentChatRoom.id).off();
+
+        //db chatRoom 테이블의 URL 수정
         const needChangeInChatRoomsRef = [];
         chatRoomsRef.on("value", (DataSnapshot) => {
           DataSnapshot.forEach((data) => {
@@ -73,37 +81,20 @@ function UserPanel() {
               });
           });
         });
-        messagesRef.child(currentChatRoom.id).off();
-        // chatRoomsRef.off();
-        //db imageRef 전부 수정
-        needChangeInMessageRef.forEach(async (data) => {
-          await messagesRef
-            .child(`${currentChatRoom.id}/${data.key}/user`)
-            .update({
-              image: data.downloadURL,
-            });
-          // await chatRoomsRef.child(`${currentChatRoom.id}/createdBy`).update({
-          //   image: data.downloadURL,
-          // });
-        });
         needChangeInChatRoomsRef.forEach(async (data) => {
           await chatRoomsRef.child(`${data.chatRoomId}/createdBy`).update({
             image: data.downloadURL,
           });
         });
-        //state.user.currentUesr 프로필 이미지 수정
-        dispatch(setPhotoURL(downloadURL));
-
-        //state.chatRoom.messages 모든 이미지 링크 수정
-        dispatch(
-          setImageRefInMessges({ currentUserId: currentUser.uid, downloadURL })
-        );
-        //state.chatRoom.currentChatRoom의 생성자 이미지 링크 수정
-        dispatch(setImageRefInCurrentChatRoom({ downloadURL }));
         //데이터 베이스의 이미지 정보 수정
         await firebase.database().ref("user").child(currentUser.uid).update({
           image: downloadURL,
         });
+        //state.user.currentUesr 프로필 이미지 수정
+        dispatch(setPhotoURL(downloadURL));
+
+        //state.chatRoom.currentChatRoom의 생성자 이미지 링크 수정
+        dispatch(setImageRefInCurrentChatRoom({ downloadURL }));
       } catch (err) {
         console.log(err);
       }

@@ -135,7 +135,17 @@ function MessagesForm() {
       )}
       <div>
         {errors.map((errorMsg) => (
-          <p>{errorMsg}</p>
+          <p
+            style={{
+              marginTop: "20px",
+              marginBottom: 0,
+              textAlign: "center",
+              fontSize: "20px",
+              fontWeight: "bold",
+            }}
+          >
+            {errorMsg}
+          </p>
         ))}
       </div>
       <Row>
@@ -144,7 +154,7 @@ function MessagesForm() {
             disabled={loading}
             onClick={handleSubmit}
             className="message-form-button"
-            style={{ width: "100%" }}
+            style={{ width: "100%", marginTop: "20px" }}
           >
             SEND
           </button>
@@ -153,7 +163,7 @@ function MessagesForm() {
           <button
             disabled={loading}
             className="message-form-button"
-            style={{ width: "100%" }}
+            style={{ width: "100%", marginTop: "20px" }}
             onClick={() => inputOpenImageRef.current.click()}
           >
             UPLOAD

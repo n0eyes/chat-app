@@ -20,7 +20,7 @@ export class DirectMessages extends Component {
       setTimeout(() => {
         this.props.currentUser && this.addUsersListenrs(this.props.currentUser);
         this.setState({ isLoaded: true });
-      }, 500);
+      }, 600);
     }
   }
   addUsersListenrs = (currentUser) => {
