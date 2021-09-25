@@ -3,26 +3,30 @@ import ChatRoom from "./ChatRoom";
 import UserPanel from "./UserPanel";
 import DirectMessages from "./DirectMessages";
 import Favorited from "./Favorited";
+import UserSearch from "./UserSearch";
+import styled from "styled-components";
 function SidePanel() {
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-around",
-        backgroundColor: "#0c8599",
-        color: " white",
-        padding: "25px",
-      }}
-    >
-      <UserPanel />
-      <Favorited />
-      <ChatRoom />
-      <DirectMessages />
-    </div>
+    <>
+      <SidePanelWrapper>
+        <UserPanel />
+        <Favorited />
+        <ChatRoom />
+        <DirectMessages />
+        <UserSearch />
+      </SidePanelWrapper>
+    </>
   );
 }
+
+const SidePanelWrapper = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #0c8599;
+  color: white;
+  padding: 25px;
+`;
 
 export default SidePanel;

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { FaRegSmileWink } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { VscChromeClose } from "react-icons/vsc";
@@ -6,7 +7,7 @@ import Badge from "react-bootstrap/Badge";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { connect } from "react-redux";
+import styled, { css } from "styled-components";
 import firebase from "firebase";
 import {
   setCurrentChatRoom,
@@ -147,19 +148,10 @@ export class ChatRoom extends Component {
   renderChatRooms = (chatRooms) => {
     if (chatRooms.length)
       return chatRooms.map((room) => (
-        <li
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingLeft: 5,
-            cursor: "pointer",
-            borderRadius: "5px",
-            backgroundColor:
-              this.state.activeChatRoomId === room.id &&
-              !this.props.isPrivate &&
-              "#ffffff45",
-          }}
+        <ChatRoomWrapper
+          selected={
+            this.state.activeChatRoomId === room.id && !this.props.isPrivate
+          }
           key={room.id}
           onClick={() => this.changeChatRoom(room)}
         >
@@ -167,7 +159,7 @@ export class ChatRoom extends Component {
           <Badge style={{ backgroundColor: "#e03131", height: "20px" }}>
             {this.getNotificationsCount(room)}
           </Badge>
-        </li>
+        </ChatRoomWrapper>
       ));
   };
   addChatRoom = async () => {
@@ -200,15 +192,8 @@ export class ChatRoom extends Component {
   };
   render() {
     return (
-      <div>
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
+      <ChatRoomsWrapper>
+        <div className="chatRoomHeader">
           <FaRegSmileWink style={{ marginRight: "11px", marginTop: "2px" }} />
           {`CHAT ROOMS (${this.state.chatRooms.length})`}
           <FaPlus
@@ -216,7 +201,7 @@ export class ChatRoom extends Component {
             onClick={this.handleShow}
           />
         </div>
-        <ul style={{ listStyleType: "none", padding: 0 }}>
+        <ul className="chatRoomLists">
           {this.renderChatRooms(this.state.chatRooms)}
         </ul>
         <Modal show={this.state.show} onHide={this.handleClose}>
@@ -261,10 +246,37 @@ export class ChatRoom extends Component {
             </Button>
           </Modal.Footer>
         </Modal>
-      </div>
+      </ChatRoomsWrapper>
     );
   }
 }
+
+const ChatRoomsWrapper = styled.div`
+  .chatRoomHeader {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .chatRoomLists {
+    list-style-type: none;
+    padding: 0;
+  }
+`;
+const ChatRoomWrapper = styled.li`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 5;
+  cursor: pointer;
+  border-radius: 5px;
+  ${({ selected }) =>
+    selected &&
+    `
+background-color: #ffffff45;
+`}
+`;
+
 const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,

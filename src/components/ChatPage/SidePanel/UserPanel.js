@@ -1,13 +1,14 @@
 import React, { useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useHistory } from "react-router";
+import { setLogOut, setPhotoURL } from "../../../redux/actions/user_action";
+import { setImageRefInCurrentChatRoom } from "../../../redux/actions/chatRoom_action";
 import { IoIosChatboxes } from "react-icons/io";
 import Dropdown from "react-bootstrap/Dropdown";
 import Image from "react-bootstrap/Image";
-import firebase from "firebase";
-import { setLogOut, setPhotoURL } from "../../../redux/actions/user_action";
-import { useHistory } from "react-router";
 import mime from "mime-types";
-import { setImageRefInCurrentChatRoom } from "../../../redux/actions/chatRoom_action";
+import styled from "styled-components";
+import firebase from "firebase";
 function UserPanel() {
   const currentUser = useSelector((state) => state.user.currentUser);
   const currentChatRoom = useSelector(
@@ -102,20 +103,16 @@ function UserPanel() {
     [currentUser, currentChatRoom, messagesRef, chatRoomsRef, dispatch]
   );
   return (
-    <div>
+    <UserPanelWrapper>
       {/* <-- Logo --> */}
       <h3>
         <IoIosChatboxes />
         {` Chat App`}
       </h3>
-      <div style={{ display: "flex" }}>
-        <Image
-          src={currentUser?.photoURL}
-          roundedCircle
-          style={{ width: 30, height: 30, marginRight: 5 }}
-        />
+      <div className="userPanel">
+        <ImageWrapper src={currentUser?.photoURL} roundedCircle />
         <Dropdown>
-          <Dropdown.Toggle
+          <ToggleWrapper
             id="dropdown-basic"
             style={{
               background: "transparent",
@@ -123,7 +120,7 @@ function UserPanel() {
             }}
           >
             {currentUser?.displayName}
-          </Dropdown.Toggle>
+          </ToggleWrapper>
 
           <Dropdown.Menu>
             <Dropdown.Item onClick={onUploadImage}>
@@ -137,14 +134,39 @@ function UserPanel() {
       </div>
 
       <input
-        style={{ display: "none" }}
+        className="imageUploadInput"
         type="file"
         accept="image/jpeg, image/png"
         ref={imageUploadRef}
         onChange={onUploadImgToDb}
       />
-    </div>
+    </UserPanelWrapper>
   );
 }
-
+const UserPanelWrapper = styled.div`
+  .userPanel {
+    display: flex;
+  }
+  .imageUploadInput {
+    display: none;
+  }
+  .userProfileImage {
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+  }
+  .userProfileDropdown {
+    background: transparent;
+    border: 0;
+  }
+`;
+const ToggleWrapper = styled(Dropdown.Toggle)`
+  background: transparent;
+  border: 0;
+`;
+const ImageWrapper = styled(Image)`
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+`;
 export default UserPanel;

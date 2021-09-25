@@ -46,7 +46,7 @@ export class MainPanel extends Component {
   addTypingListener = (chatRoomId) => {
     let typingUsers = [];
     this.state.typingRef.child(chatRoomId).on("child_added", (DataSnapshot) => {
-      if (DataSnapshot.key !== this.props.currentUser.uid) {
+      if (DataSnapshot.key !== this.props.currentUser?.uid) {
         typingUsers = typingUsers.concat({
           id: DataSnapshot.key,
           name: DataSnapshot.val(),
@@ -198,7 +198,6 @@ const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,
     currentChatRoom: state.chatRoom.currentChatRoom,
-    messages: state.chatRoom.messages,
   };
 };
 export default connect(mapStateToProps)(MainPanel);

@@ -6,6 +6,7 @@ import {
   setCurrentChatRoom,
   setIsPrivate,
 } from "../../../redux/actions/chatRoom_action";
+import styled from "styled-components";
 export class Favorited extends Component {
   state = {
     favoritedChatRooms: [],
@@ -70,25 +71,19 @@ export class Favorited extends Component {
   renderFavoritedChatRooms = (favoritedChatRooms) =>
     favoritedChatRooms.length > 0 &&
     favoritedChatRooms.map((room) => (
-      <li
+      <FavoritedChatRoom
         key={room.id}
         onClick={() => this.changeChatRoom(room)}
-        style={{
-          paddingLeft: 5,
-          cursor: "pointer",
-          borderRadius: "5px",
-          backgroundColor:
-            this.state.activeChatRoomId === room.id &&
-            !this.props.isPrivate &&
-            "#ffffff45",
-        }}
+        selected={
+          this.state.activeChatRoomId === room.id && !this.props.isPrivate
+        }
       >
         # {room.name}
-      </li>
+      </FavoritedChatRoom>
     ));
   render() {
     return (
-      <div>
+      <FavoritedWrapper>
         <div
           style={{
             display: "flex",
@@ -98,18 +93,34 @@ export class Favorited extends Component {
           <FaRegSmileBeam style={{ marginRight: "11px", marginTop: "2px" }} />
           {`FAVORITED (${this.state.favoritedChatRooms.length})`}
         </div>
-        <ul style={{ listStyleType: "none", padding: 0 }}>
+        <ul className="favoritedChatRoomWrapper">
           {this.renderFavoritedChatRooms(this.state.favoritedChatRooms)}
         </ul>
-      </div>
+      </FavoritedWrapper>
     );
   }
 }
+const FavoritedWrapper = styled.div`
+  .favoritedChatRoomWrapper {
+    list-style-type: none;
+    padding: 0;
+  }
+  }
+`;
+const FavoritedChatRoom = styled.li`
+  paddingleft: 5;
+  cursor: pointer;
+  borderradius: 5px;
 
+  ${({ selected }) =>
+    selected &&
+    `
+background-color: #ffffff45;
+`}
+`;
 const mapStateToProps = (state) => {
   return {
     currentUser: state.user.currentUser,
   };
 };
-
 export default connect(mapStateToProps)(Favorited);
