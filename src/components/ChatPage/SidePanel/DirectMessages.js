@@ -13,14 +13,22 @@ export class DirectMessages extends Component {
     isLoaded: false,
   };
 
-  componentDidMount() {
+  // componentDidMount() {
+  //   if (!this.state.isLoaded) {
+  //     //처음에 props를 받아오는데 시간이 걸려서 null로 인식하는 것을 대처하기 위함
+  //     //추후 더 좋은 방식으로 개선
+  //     console.log([this.props.currentUser]);
+  //     this.props.currentUser && this.addUsersListenrs(this.props.currentUser);
+  //     this.setState({ isLoaded: true });
+  //     setTimeout(() => {
+  //       console.log([this.props.currentUser]);
+  //     }, 600);
+  //   }
+  // }
+  componentDidUpdate() {
     if (!this.state.isLoaded) {
-      //처음에 props를 받아오는데 시간이 걸려서 null로 인식하는 것을 대처하기 위함
-      //추후 더 좋은 방식으로 개선
-      setTimeout(() => {
-        this.props.currentUser && this.addUsersListenrs(this.props.currentUser);
-        this.setState({ isLoaded: true });
-      }, 600);
+      this.props.currentUser && this.addUsersListenrs(this.props.currentUser);
+      this.setState({ isLoaded: true });
     }
   }
   addUsersListenrs = (currentUser) => {

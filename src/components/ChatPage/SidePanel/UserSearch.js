@@ -29,7 +29,6 @@ function UserSearch() {
   }, [userLists, searchUser, setFoundUsers]);
   const addUserListsListener = useCallback(() => {
     usersRef.on("child_added", (DataSnapshot) => {
-      console.log("여기", DataSnapshot.val());
       const user = {
         id: DataSnapshot.key,
         name: DataSnapshot.val().name,

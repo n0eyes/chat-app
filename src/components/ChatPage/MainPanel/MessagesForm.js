@@ -11,6 +11,7 @@ function MessagesForm() {
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [percentage, setPercentage] = useState(0);
+  const enterRef = useRef();
   const messagesRef = firebase.database().ref("messages");
   const typingRef = firebase.database().ref("typing");
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -80,7 +81,7 @@ function MessagesForm() {
     };
     return message;
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     if (!content) {
       setErrors((prev) => [...prev, "Type contents first"]);
       setTimeout(() => setErrors([]), 2000);
@@ -91,7 +92,9 @@ function MessagesForm() {
     try {
       setLoading(true);
       await messagesRef.child(currentChatRoom.id).push().set(createMessage());
-
+      //엔터 후 db에서 타이핑 정보 제거 => 입력중 메세지 제거
+      currentChatRoom &&
+        typingRef.child(currentChatRoom.id).child(currentUser.uid).remove();
       setLoading(false);
       setContent("");
       setErrors([]);
@@ -99,20 +102,33 @@ function MessagesForm() {
       setErrors((prev) => [...prev, err.message]);
     }
   };
-  const handleChange = (e) => {
-    setContent(e.currentTarget.value);
-  };
-  const handleKeyDown = useCallback(() => {
-    if (content && currentChatRoom) {
-      typingRef
-        .child(currentChatRoom.id)
-        .child(currentUser.uid)
-        .set(currentUser.displayName);
-    } else {
-      currentChatRoom &&
-        typingRef.child(currentChatRoom.id).child(currentUser.uid).remove();
-    }
-  }, [content, typingRef, currentUser, currentChatRoom]);
+  const handleChange = useCallback(
+    (e) => {
+      setContent(e.currentTarget.value);
+      handleTyping(e.currentTarget.value);
+    },
+    [setContent]
+  );
+  const handleTyping = useCallback(
+    (content) => {
+      if (content && currentChatRoom) {
+        typingRef
+          .child(currentChatRoom.id)
+          .child(currentUser.uid)
+          .set(currentUser.displayName);
+      } else {
+        currentChatRoom &&
+          typingRef.child(currentChatRoom.id).child(currentUser.uid).remove();
+      }
+    },
+    [typingRef, currentUser, currentChatRoom]
+  );
+  const handleKeyDown = useCallback(
+    (e) => {
+      e.ctrlKey && e.key === "Enter" && handleSubmit();
+    },
+    [enterRef, handleSubmit]
+  );
   return (
     <div>
       <Form onSubmit={handleSubmit}>
@@ -134,8 +150,9 @@ function MessagesForm() {
         />
       )}
       <div>
-        {errors.map((errorMsg) => (
+        {errors.map((errorMsg, i) => (
           <p
+            key={i}
             style={{
               marginTop: "20px",
               marginBottom: 0,
@@ -154,9 +171,10 @@ function MessagesForm() {
             disabled={loading}
             onClick={handleSubmit}
             className="message-form-button"
+            ref={enterRef}
             style={{ width: "100%", marginTop: "20px" }}
           >
-            SEND
+            SEND(ctrl + enter)
           </button>
         </Col>
         <Col>
