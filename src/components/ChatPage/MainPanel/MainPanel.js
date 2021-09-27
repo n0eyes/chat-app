@@ -35,7 +35,8 @@ export class MainPanel extends Component {
     }
   }
   componentWillUnmount() {
-    this.state.messagesRef.off();
+    const { currentChatRoom } = this.props;
+    currentChatRoom && this.state.messagesRef.child(currentChatRoom.id).off();
     this.removeListeners(this.state.listenerLists);
   }
   removeListeners = (listeners) => {

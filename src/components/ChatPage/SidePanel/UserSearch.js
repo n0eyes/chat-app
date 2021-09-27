@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { FaRegSmileWink } from "react-icons/fa";
+import { FaRegSmileWink, FaRegWindowClose } from "react-icons/fa";
 import { BsSearch } from "react-icons/bs";
 import { Button } from "react-bootstrap";
 import styled from "styled-components";
@@ -27,33 +27,100 @@ function UserSearch() {
     }, []);
     setFoundUsers(foundUsers);
   }, [userLists, searchUser, setFoundUsers]);
-  const addUserListsListener = useCallback(() => {
-    usersRef.on("child_added", (DataSnapshot) => {
-      const user = {
-        id: DataSnapshot.key,
-        name: DataSnapshot.val().name,
-      };
-      setUserLists((prev) => [...prev, user]);
-    });
-  }, [setUserLists]);
-  const renderSearchUsers = useCallback((foundUsers) => {
-    return foundUsers.map((user) => (
-      <div key={user.id} className="searchUserWrapper">
-        <li># {user.name}</li>
-        <Button
-          variant="warning"
-          style={{ padding: 3, fontSize: "12px", fontWeight: "bold" }}
-        >
-          친구신청
-        </Button>
-      </div>
-    ));
+  const addUserListsListener = useCallback(
+    (currentUser) => {
+      usersRef.on("child_added", (DataSnapshot) => {
+        const user = {
+          id: DataSnapshot.key,
+          name: DataSnapshot.val().name,
+        };
+        user.id !== currentUser.uid && setUserLists((prev) => [...prev, user]);
+      });
+    },
+    [setUserLists]
+  );
+  const requestFriend = useCallback((responseUser, currentUser) => {
+    usersRef
+      .child(currentUser.uid)
+      .child(`friends/${responseUser.id}`)
+      .update({
+        state: "request",
+        requestUser: {
+          id: currentUser.uid,
+          name: currentUser.displayName,
+        },
+        responseUser: {
+          id: responseUser.id,
+          name: responseUser.name,
+        },
+      });
   }, []);
-  // {
-  //   state: loading
-  //   request: userid , id
-  //   response: userid , id
-  // }
+  const removeFriend = useCallback(
+    (responseUser, currentUser) => {
+      usersRef
+        .child(currentUser.uid)
+        .child(`friends/${responseUser.id}`)
+        .remove();
+      const newMyFriendsList = myFriendsList.filter(
+        (friend) => friend.key !== responseUser.id
+      );
+      setMyFriendsList(newMyFriendsList);
+    },
+    [myFriendsList, setMyFriendsList]
+  );
+  const renderSearchUsers = useCallback(
+    (foundUsers) =>
+      foundUsers.map((user) => {
+        for (let i = 0; i < myFriendsList.length; i++) {
+          if (
+            myFriendsList[i].key === user.id &&
+            myFriendsList[i].state === "request"
+          )
+            return (
+              <div key={user.id} className="searchUserWrapper">
+                <li># {user.name}</li>
+                <Button
+                  variant="secondary"
+                  disabled
+                  style={{ padding: 3, fontSize: "12px", fontWeight: "bold" }}
+                >
+                  수락대기중
+                </Button>
+              </div>
+            );
+          else if (
+            myFriendsList[i].key === user.id &&
+            myFriendsList[i].state === "accept"
+          )
+            return (
+              <div key={user.id} className="searchUserWrapper">
+                <li># {user.name}</li>
+                <Button
+                  variant="danger"
+                  style={{ padding: 3, fontSize: "12px", fontWeight: "bold" }}
+                  onClick={() => removeFriend(user, currentUser)}
+                >
+                  친구삭제
+                </Button>
+              </div>
+            );
+        }
+        return (
+          <div key={user.id} className="searchUserWrapper">
+            <li># {user.name}</li>
+            <Button
+              variant="warning"
+              style={{ padding: 3, fontSize: "12px", fontWeight: "bold" }}
+              onClick={() => requestFriend(user, currentUser)}
+            >
+              친구신청
+            </Button>
+          </div>
+        );
+      }),
+    [currentUser, myFriendsList]
+  );
+
   const addFriendsListsListener = useCallback(async () => {
     const usersData = await usersRef.get().then((DataSnapshot) => DataSnapshot);
 
@@ -63,13 +130,17 @@ function UserSearch() {
           .child(currentUser.uid)
           .child("friends")
           .on("child_added", (DataSnapshot) => {
-            setMyFriendsList((prev) => [...prev, DataSnapshot.val()]);
+            var friend = {
+              key: DataSnapshot.key,
+              ...DataSnapshot.val(),
+            };
+            setMyFriendsList((prev) => [...prev, friend]);
           });
     });
   }, [currentUser, setMyFriendsList]);
   useEffect(() => {
-    addUserListsListener();
-  }, [addUserListsListener]);
+    currentUser && addUserListsListener(currentUser);
+  }, [addUserListsListener, currentUser]);
   useEffect(() => {
     currentUser && addFriendsListsListener();
   }, [addFriendsListsListener, currentUser]);
