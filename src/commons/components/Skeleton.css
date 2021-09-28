@@ -1,0 +1,45 @@
+@keyframes sweep {
+  0% {
+    transform: translateX(-50%);
+  }
+  50% {
+    transform: translateX(150%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.skeleton::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  animation: sweep 2s infinite;
+  background-image: linear-gradient(
+    to left,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(58, 57, 57, 0.3);
+  border-radius: 3px;
+  width: 348px;
+  height: 110px;
+  margin-bottom: 20px;
+}
+.skeleton-avatar {
+  height: 48px;
+  width: 48px;
+  border-radius: 3px;
+  background-color: rgba(58, 57, 57, 0.5);
+  position: absolute;
+  left: 12px;
+  top: 8px;
+}

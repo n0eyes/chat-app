@@ -5,12 +5,14 @@ import MessagesForm from "./MessagesForm";
 import { connect } from "react-redux";
 import { setUserPosts } from "../../../redux/actions/chatRoom_action";
 import firebase from "firebase";
+import Skeleton from "../../../commons/components/Skeleton";
 export class MainPanel extends Component {
   messageEndRef = React.createRef();
 
   state = {
     messages: [],
     messagesRef: firebase.database().ref("messages"),
+    usersRef: firebase.database().ref("user"),
     messagesLoading: true,
     typingRef: firebase.database().ref("typing"),
     searchTerm: "",
@@ -27,6 +29,7 @@ export class MainPanel extends Component {
     if (currentChatRoom) {
       this.addMessageListener(currentChatRoom.id);
       this.addTypingListener(currentChatRoom.id);
+      // this.addFriendRequestModal(this.props.currentUser);
     }
   }
   componentDidUpdate() {
@@ -39,6 +42,14 @@ export class MainPanel extends Component {
     currentChatRoom && this.state.messagesRef.child(currentChatRoom.id).off();
     this.removeListeners(this.state.listenerLists);
   }
+  addFriendRequestModal = (currentUser) => {
+    currentUser && console.log(currentUser);
+    this.state.usersRef
+      .child(currentUser.uid)
+      .on("child_changed", (DataSnapshot) => {
+        console.log(DataSnapshot.val());
+      });
+  };
   removeListeners = (listeners) => {
     listeners.forEach((listener) => {
       listener.ref.child(listener.id).off(listener.event);
@@ -166,7 +177,14 @@ export class MainPanel extends Component {
     typingUsers.map((user) => (
       <span key={user.id}>{user.name}님이 채팅을 입력하고 있습니다..</span>
     ));
-
+  renderMessageSkeleton = (loading) =>
+    loading && (
+      <>
+        {[...Array(7)].map((v, i) => (
+          <Skeleton key={i} />
+        ))}
+      </>
+    );
   render() {
     return (
       <div style={{ padding: "25px", height: "100vh" }}>
@@ -181,6 +199,8 @@ export class MainPanel extends Component {
             overflowY: "auto",
           }}
         >
+          {this.renderMessageSkeleton(this.state.messagesLoading)}
+
           {/* 조건으로 serachResultf를 사용하면 searchTerm이 빈 문자열일 때
               빈 문자들로 이루어진 배열을 반환해서 불가능(정규표현식 구글링)
           */}

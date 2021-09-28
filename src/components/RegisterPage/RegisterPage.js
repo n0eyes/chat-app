@@ -27,17 +27,16 @@ function RegisterPage() {
           .auth()
           .createUserWithEmailAndPassword(data.Email, data.Password);
         setIsLoading(false);
-
         await createdUser.user.updateProfile({
           displayName: data.Name,
           photoURL: `http://gravatar.com/avatar/${v4()}?d=identicon`,
         });
-
         await firebase.database().ref("user").child(createdUser.user.uid).set({
           name: createdUser.user.displayName,
           image: createdUser.user.photoURL,
+          friend: {},
         });
-        history.push("/login");
+        // history.push("/login");
       }
     } catch (err) {
       setErrorFromSubmit(err.message);
