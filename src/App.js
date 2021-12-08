@@ -6,6 +6,7 @@ import RegisterPage from "./components/RegisterPage/RegisterPage";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "./redux/actions/user_action";
 import firebase from "firebase";
+import "./App.css";
 function App() {
   const history = useHistory();
   const dispatch = useDispatch();

@@ -7,11 +7,11 @@ function ChatPage() {
     (state) => state.chatRoom.currentChatRoom
   );
   return (
-    <div style={{ display: "flex", flexBasis: "300px" }}>
-      <div style={{ width: "15vw" }}>
+    <div style={{ display: "flex", flexBasis: "300px", height: "100vh" }}>
+      <div style={{ width: "20vw" }}>
         <SidePanel></SidePanel>
       </div>
-      <div style={{ width: "85vw" }}>
+      <div style={{ width: "80vw" }}>
         <MainPanel key={currentChatRoom?.id}></MainPanel>
       </div>
     </div>

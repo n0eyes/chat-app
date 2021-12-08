@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Image from "react-bootstrap/Image";
@@ -14,6 +12,7 @@ import { ImSmile2, ImCompass, ImNeutral } from "react-icons/im";
 import { useSelector } from "react-redux";
 import ImageExpansion from "../../../ImageExpansion";
 import firebase from "firebase";
+import styled from "styled-components";
 function MessagesHeader({ handleSearchChange }) {
   const userRef = firebase.database().ref("user");
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -98,98 +97,105 @@ function MessagesHeader({ handleSearchChange }) {
     <div
       style={{
         width: "100%",
-        height: "170px",
+        minHeight: "130px",
         border: ".2rem solid #ececec",
         borderRadius: "4px",
-        padding: "1rem ",
+        padding: "0.7rem ",
         marginBottom: "1rem",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "unset",
       }}
     >
       <Container>
-        <Row>
-          <Col>
-            <h3
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              {isPrivate ? (
-                <FaLock style={{ marginRight: "10px" }} />
-              ) : (
-                <FaLockOpen style={{ marginRight: "10px" }} />
-              )}
-              {currentChatRoom?.name}{" "}
-              {!isPrivate ? (
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
-                  }}
-                  onClick={handleFavorite}
-                >
-                  {isFavorited ? <ImSmile2 /> : <ImNeutral />}
-                </span>
-              ) : (
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <ImCompass />
-                </span>
-              )}
-            </h3>
-          </Col>
-          <Col>
-            <InputGroup className="mb-3">
-              <InputGroup.Text id="basic-addon1">
-                <AiOutlineSearch />
-              </InputGroup.Text>
-              <FormControl
-                onChange={handleSearchChange}
-                placeholder="Search Messages"
-                aria-label="Search Messages"
-                aria-describedby="basic-addon1"
-              />
-            </InputGroup>
-          </Col>
-        </Row>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "5px",
+          }}
+        >
+          <h5
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              minWidth: "300px",
+            }}
+          >
+            {isPrivate ? (
+              <FaLock style={{ marginRight: "10px" }} />
+            ) : (
+              <FaLockOpen style={{ marginRight: "10px" }} />
+            )}
+            {currentChatRoom?.name}{" "}
+            {!isPrivate ? (
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  cursor: "pointer",
+                }}
+                onClick={handleFavorite}
+              >
+                {isFavorited ? <ImSmile2 /> : <ImNeutral />}
+              </span>
+            ) : (
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <ImCompass />
+              </span>
+            )}
+          </h5>
+
+          <InputGroup
+            className="mb-3"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: "50%",
+              maxWidth: "300px",
+              marginLeft: "auto",
+            }}
+          >
+            <InputGroup.Text id="basic-addon1" style={{ alignSelf: "stretch" }}>
+              <AiOutlineSearch />
+            </InputGroup.Text>
+            <FormControl
+              onChange={handleSearchChange}
+              placeholder="Search Messages"
+              aria-label="Search Messages"
+              aria-describedby="basic-addon1"
+            />
+          </InputGroup>
+        </div>
 
         <div
           style={{
             display: "flex",
+            alignItems: "flex-start",
             justifyContent: "flex-end",
+            position: "relative",
           }}
         >
-          {!isPrivate && (
-            <p>
-              <Image
-                src={currentChatRoom && currentChatRoom.createdBy.image}
-                roundedCircle
-                style={{ width: "30px", height: "30px", cursor: "pointer" }}
-                onClick={() =>
-                  setImageExpand(
-                    currentChatRoom && currentChatRoom.createdBy.image
-                  )
-                }
-              />
-              {currentChatRoom && ` ${currentChatRoom.createdBy.name}`}
-            </p>
-          )}
-        </div>
-        <Row>
-          <Col>
-            <Accordion>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+            }}
+          >
+            <StyledAccordion>
               <Card>
                 <Card.Header style={{ padding: 0 }}>
                   <Accordion.Toggle
                     as={Button}
                     eventKey="0"
                     style={{
+                      minWidth: "150px",
                       backgroundColor: "transparent",
                       color: "black",
                       border: "none",
@@ -204,16 +210,16 @@ function MessagesHeader({ handleSearchChange }) {
                   </Card.Body>
                 </Accordion.Collapse>
               </Card>
-            </Accordion>
-          </Col>
-          <Col>
-            <Accordion>
+            </StyledAccordion>
+
+            <StyledAccordion>
               <Card>
                 <Card.Header style={{ padding: "0" }}>
                   <Accordion.Toggle
                     as={Button}
                     eventKey="0"
                     style={{
+                      minWidth: "150px",
                       backgroundColor: "transparent",
                       color: "black",
                       border: "none",
@@ -228,9 +234,45 @@ function MessagesHeader({ handleSearchChange }) {
                   </Card.Body>
                 </Accordion.Collapse>
               </Card>
-            </Accordion>
-          </Col>
-        </Row>
+            </StyledAccordion>
+          </div>
+          <div
+            style={{
+              height: "39px",
+              display: "flex",
+              alignSelf: "stretch",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {!isPrivate && (
+                <p style={{ margin: 0, display: "flex", alignItems: "center" }}>
+                  <Image
+                    src={currentChatRoom && currentChatRoom.createdBy.image}
+                    roundedCircle
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      margin: "0 5px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() =>
+                      setImageExpand(
+                        currentChatRoom && currentChatRoom.createdBy.image
+                      )
+                    }
+                  />
+                  {currentChatRoom && ` ${currentChatRoom.createdBy.name}`}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
       </Container>
       {imageExpand && (
         <ImageExpansion imageURL={imageExpand} close={setImageExpand} />
@@ -240,3 +282,7 @@ function MessagesHeader({ handleSearchChange }) {
 }
 
 export default MessagesHeader;
+
+const StyledAccordion = styled(Accordion)`
+  margin: 0 5px;
+`;

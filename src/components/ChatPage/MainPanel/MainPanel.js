@@ -187,13 +187,22 @@ export class MainPanel extends Component {
     );
   render() {
     return (
-      <div style={{ padding: "25px", height: "100vh" }}>
+      <div
+        style={{
+          padding: "25px",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <MessagesHeader handleSearchChange={this.handleSearchChange} />
         <div
           style={{
             border: "2px solid #ececec",
             width: "100%",
-            height: "65vh",
+            display: "flex",
+            flexDirection: "column",
+            flexGrow: "1",
             padding: "1rem",
             marginBottom: "1rem",
             overflowY: "auto",
