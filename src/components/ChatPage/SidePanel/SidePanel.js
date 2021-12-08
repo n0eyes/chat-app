@@ -27,6 +27,7 @@ const SidePanelWrapper = styled.div`
   background-color: #0c8599;
   color: white;
   padding: 25px;
+  overflow: scroll;
 `;
 
 export default SidePanel;

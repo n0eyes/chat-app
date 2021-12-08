@@ -139,6 +139,7 @@ function MessagesForm() {
             onKeyDown={handleKeyDown}
             as="textarea"
             row={3}
+            style={{ resize: "none" }}
           ></Form.Control>
         </Form.Group>
       </Form>
@@ -165,7 +166,7 @@ function MessagesForm() {
           </p>
         ))}
       </div>
-      <Row>
+      <Row style={{ alignItems: "stretch" }}>
         <Col>
           <button
             disabled={loading}
@@ -177,11 +178,11 @@ function MessagesForm() {
             SEND(ctrl + enter)
           </button>
         </Col>
-        <Col>
+        <Col style={{ display: "flex" }}>
           <button
             disabled={loading}
             className="message-form-button"
-            style={{ width: "100%", marginTop: "20px" }}
+            style={{ width: "100%", marginTop: "20px", alignSelf: "stretch" }}
             onClick={() => inputOpenImageRef.current.click()}
           >
             UPLOAD
